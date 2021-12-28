@@ -1,10 +1,8 @@
 
-console.log("--INDEX SCRIPT--");
-
 import "../scss/base.scss";
 
 
-function turnOver(card) {
+function turnOver(card: Element) {
     card.classList.toggle('flip')
 }
 
@@ -14,7 +12,7 @@ function init() {
     console.log(cards)
 
     cards.forEach(card => {
-        card.addEventListener('click',e => {
+        card.addEventListener('click', () => {
             turnOver(card)
         })
     })

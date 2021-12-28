@@ -5,12 +5,17 @@ const recursiveGetFilePaths = require("./recursiveGetFilePaths");
 
 module.exports = {
     entry: {
-        "index": './src/js/index.js',
+        "index": './src/js/index.ts',
         "public-files": recursiveGetFilePaths('./public'),
     },
     module: {
         rules: [
 
+            {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/,
+            },
             { //sass rule
                 test: /\.s[ac]ss$/i, exclude: /node_modules/,
                 use: ['style-loader', 'css-loader', "postcss-loader", 'sass-loader',],
