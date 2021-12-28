@@ -1,5 +1,7 @@
 
 import "../scss/base.scss";
+import { Card } from "./card";
+import { Pile } from "./pile";
 
 
 function turnOver(card: Element) {
@@ -7,6 +9,13 @@ function turnOver(card: Element) {
 }
 
 function init() {
+
+    const pile = Pile.ofNewDeck();
+    console.log(pile)
+
+    pile.cards.forEach(card => {
+        document.body.appendChild(card.toElement());
+    })
 
     const cards = [...document.querySelectorAll('.card')];
     console.log(cards)
