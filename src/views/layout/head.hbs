@@ -1,0 +1,14 @@
+<head>
+    <meta charset="UTF-8">
+    <title>{{site/title}}</title>
+
+    {{#unless noViewportTag}}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{/unless}}
+
+
+    {{#if bundleName }}
+        <script src="./js/{{bundleName}}.js"></script>
+    {{/if}}
+
+</head>

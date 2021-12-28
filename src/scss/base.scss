@@ -1,0 +1,95 @@
+
+
+.card {
+
+    display: inline-block;
+    transform-origin: center;
+    width: 4em;
+    height: 6em;
+    transform: rotateY(0deg);
+    transform-style: preserve-3d;
+    margin: .2rem;
+
+    transition: transform .2s;
+    &.flip {
+        transform: rotateY(180deg);
+    }
+
+    section {
+        display: inline-block;
+        position: absolute;
+        border-radius: .5em;
+        backface-visibility: hidden;
+        width: inherit;
+        height: inherit;
+        margin: 0;
+    }
+
+    .back {
+        transform: rotateY(180deg);
+        background: repeating-linear-gradient(45deg, black, transparent 10px)
+    }
+
+    .face {
+        background-color: antiquewhite;
+        border: 1px solid;
+
+        &::before, &::after {
+            font-size: 150%;
+            position: absolute;
+        }
+
+        &::before {
+            top: 0%;
+            left: 0%;
+        }
+
+        &::after {
+            bottom: 0%;
+            right: 0%;
+        }
+
+
+        .value {
+            position: absolute;
+            font-size: 200%;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+        }
+    }
+
+
+
+    &[suit="hearts"] .face {
+        color: red;
+
+        &::before, &::after {
+            content: '\2665';
+        }
+    }
+
+    &[suit="diamonds"] .face {
+        color: red;
+
+        &::before, &::after {
+            content: '\2666';
+        }
+    }
+
+    &[suit="spades"] .face {
+        color: black;
+
+        &::before, &::after {
+            content: '\2660';
+        }
+    }
+
+    &[suit="clubs"] .face {
+        color: black;
+
+        &::before, &::after {
+            content: '\2667';
+        }
+    }
+}

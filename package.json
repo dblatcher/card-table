@@ -1,0 +1,33 @@
+{
+  "name": "blank-project",
+  "version": "1.0.0",
+  "description": "template project folder",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "webpack --config webpack.production.js",
+    "dev": "webpack --config webpack.dev.js --watch",
+    "serve": "webpack serve --config webpack.dev.js",
+    "start": "node ./dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "David Blatcher",
+  "license": "ISC",
+  "devDependencies": {
+    "css-loader": "^5.2.1",
+    "cssnano": "^5.0.2",
+    "handlebars-webpack-plugin": "^2.2.1",
+    "mini-css-extract-plugin": "^1.4.1",
+    "postcss": "^8.2.13",
+    "postcss-cli": "^8.3.1",
+    "postcss-loader": "^5.2.0",
+    "postcss-preset-env": "^6.7.0",
+    "sass": "^1.32.8",
+    "sass-loader": "^11.0.1",
+    "style-loader": "^2.0.0",
+    "webpack": "^5.31.2",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.6.0",
+    "webpack-merge": "^5.7.3"
+  },
+  "dependencies": {}
+}
