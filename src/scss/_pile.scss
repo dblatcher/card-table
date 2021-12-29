@@ -1,0 +1,21 @@
+.pile {
+
+    box-shadow: 5px 5px black;
+    border-radius: .5em;
+    width: 4em;
+    height: 6em;
+    position: relative;
+    margin: 1rem;
+    display: inline-block;
+
+    &:empty {
+        box-shadow: 0 0 black;
+    }
+
+    .card {
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+
+}

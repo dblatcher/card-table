@@ -11,7 +11,7 @@ class Pile {
         this.faceDown = faceDown
     }
 
-    static ofNewDeck(faceDown = false):Pile {
+    static ofNewDeck(faceDown = false): Pile {
         const cards: Card[] = [];
         Card.suits.forEach(suit => {
             Card.cardValueList.forEach(value => {
@@ -22,7 +22,11 @@ class Pile {
         return new Pile(cards, faceDown);
     }
 
-    shuffle():Pile {
+    get descriptions() {
+        return this.cards.map(card => card.description)
+    }
+
+    shuffle(): Pile {
         const tempPile = this.cards.splice(0, this.cards.length)
         while (tempPile.length > 0) {
             this.cards.push(
@@ -32,13 +36,14 @@ class Pile {
         return this
     }
 
-    turnOver():Pile {
+    turnOver(): Pile {
         this.cards.reverse()
         this.faceDown = !this.faceDown
         return this
     }
 
-    dealTo(destination:Pile) {
+    dealTo(destination: Pile) {
+        if (this.cards.length === 0) { return }
         destination.cards.unshift(this.cards.shift())
     }
 }

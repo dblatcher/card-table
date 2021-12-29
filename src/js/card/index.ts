@@ -34,6 +34,7 @@ class Card {
 
     static suits = suits
     static cardValueList = cardValueList
+    static value = cardValues
 }
 
 export type { Suit }
