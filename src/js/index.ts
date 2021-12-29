@@ -10,15 +10,23 @@ function turnOver(card: Element) {
 
 function init() {
 
-    const pile = Pile.ofNewDeck();
-    console.log(pile)
+    const pile1 = Pile.ofNewDeck()
+    // .shuffle();
 
-    pile.cards.forEach(card => {
-        document.body.appendChild(card.toElement());
+    const pile2 = new Pile([])
+
+    pile1.dealTo(pile2)
+    pile1.dealTo(pile2)
+    pile1.dealTo(pile2)
+
+    const frame = document.getElementById("frame")
+
+    pile2.turnOver().cards.forEach(card => {
+        console.log(card.description)
+        frame.appendChild(card.toElement(pile2.faceDown));
     })
 
     const cards = [...document.querySelectorAll('.card')];
-    console.log(cards)
 
     cards.forEach(card => {
         card.addEventListener('click', () => {

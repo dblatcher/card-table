@@ -13,10 +13,14 @@ class Card {
         this.value = value
     }
 
+    get description(): string {
+        return `${this.value.name} of ${this.suit}`
+    }
 
-    toElement() {
+    toElement(faceDown = false) {
         const figure = document.createElement('figure');
         figure.classList.add('card');
+        if (faceDown) {figure.classList.add('flip')}
         figure.setAttribute('suit', this.suit);
         const face = document.createElement('section');
         face.classList.add('face');
