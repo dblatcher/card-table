@@ -3,7 +3,7 @@ import "../scss/base.scss";
 import { Card } from "./card";
 import { Pile } from "./pile";
 
-let pileElements: Element[];
+let tableElement: Element;
 
 const piles = [
     new Pile([
@@ -11,17 +11,56 @@ const piles = [
         new Card("diamonds", Card.value[3]),
         new Card("diamonds", Card.value[7]),
         new Card("diamonds", Card.value["JACK"]),
-    ], true).shuffle(),
+    ], false).shuffle(),
     new Pile([
         new Card("clubs", Card.value["JACK"]),
-    ])
+    ]),
+    new Pile([
+    ]),
+    new Pile([
+        new Card("spades", Card.value["JACK"]),
+    ]),
 ]
 
+function makePileElement(pile: Pile) {
 
-function turnOver(card: Element) {
-    card.classList.toggle('flip')
+    const index = piles.indexOf(pile)
+    const pileElement = document.createElement('div');
+    pileElement.classList.add('pile')
+
+
+    pileElement.addEventListener('dragover', event => { event.preventDefault() });
+    pileElement.addEventListener('dragenter', event => { event.preventDefault() });
+    pileElement.addEventListener('drop', dropHandler);
+    pileElement.setAttribute('droptarget', "true")
+    pileElement.setAttribute('pileindex', index.toString()) // to do - create a map of piles to elements instead of using this attribute
+
+    pileElement.addEventListener('click', () => {
+        pile.turnOver()
+        render()
+    })
+
+    return pileElement
 }
 
+function makeCardElement(card: Card, faceDown = false) {
+    const cardElement = document.createElement('figure');
+    cardElement.classList.add('card');
+    if (faceDown) {cardElement.classList.add('flip')}
+    cardElement.setAttribute('suit', card.suit);
+    cardElement.setAttribute('draggable', "true");
+
+    const face = document.createElement('section');
+    face.classList.add('face');
+    face.innerHTML = `<span class="value">${card.value.symbol}</span>`
+    cardElement.appendChild(face)
+
+    const back = document.createElement('section');
+    back.classList.add('back');
+    cardElement.appendChild(back)
+
+    return cardElement;
+}
 
 function renderPile(pile: Pile, pileElement: Element) {
     if (!pileElement) { return }
@@ -29,34 +68,68 @@ function renderPile(pile: Pile, pileElement: Element) {
         pileElement.removeChild(pileElement.firstElementChild)
     }
     pile.cards.forEach(card => {
-        pileElement.prepend(card.toElement(pile.faceDown));
+        pileElement.prepend(makeCardElement(card, pile.faceDown));
     })
+}
+
+function dragHandler(event: DragEvent) {
+    event.dataTransfer.effectAllowed = "move";
+    if (event.target instanceof HTMLElement) {
+        event.dataTransfer.setData("text/plain", event.target.parentElement.getAttribute('pileindex'));
+    }
+
+}
+
+function getAssociatedPile(pileElement: Element): Pile | undefined {
+    const index = pileElement.getAttribute('pileindex');
+    if (!index || isNaN(Number(index))) { return undefined }
+    return piles[Number(index)]
+}
+
+function dropHandler(event: DragEvent) {
+    let targetPile: Pile, sourcePile: Pile;
+    const sourceIndex = event.dataTransfer.getData("text/plain")
+    sourcePile = piles[Number(sourceIndex)];
+
+    if (event.target instanceof HTMLElement) {
+        const targetPileElement = event.target.closest('[droptarget]')
+        if (targetPileElement) {
+            targetPile = getAssociatedPile(targetPileElement)
+        }
+    }
+
+    if (!targetPile || !sourcePile) { return }
+
+    sourcePile.dealTo(targetPile)
+    render()
 }
 
 function render() {
-    renderPile(piles[0], pileElements[0]);
-    renderPile(piles[1], pileElements[1]);
+    const pileElements = [...tableElement.querySelectorAll('.pile')];
+    piles.forEach((pile, index) => { renderPile(pile, pileElements[index]) })
+
+    const cardElements = [...document.querySelectorAll('.card')];
+    cardElements.forEach(cardElement => {
+        cardElement.addEventListener('dragstart', dragHandler)
+    })
+}
+
+function addPile() {
+    const newPile = new Pile([])
+    piles.push(newPile)
+    tableElement.appendChild(makePileElement(newPile))
+    render()
 }
 
 function init() {
-    pileElements = [...document.querySelectorAll('.pile')];
+    tableElement = document.querySelector(".table");
+
+    piles.forEach(pile => {
+        tableElement.appendChild(makePileElement(pile))
+    })
 
     render();
-    console.log('pile[0]', piles[0].descriptions)
-    console.log(piles[1].descriptions)
-
-    pileElements[0].addEventListener('click', () => {
-        piles[0].dealTo(piles[1])
-        console.log('pile1', piles[0].descriptions)
-        console.log(piles[1].descriptions)
-        render()
-    })
-
-    pileElements[1].addEventListener('click', () => {
-        piles[1].turnOver()
-        render()
-    })
-
+    (window as any).addPile = addPile
 }
 
-window.addEventListener('load', init, { once: false });
+window.addEventListener('load', init, { once: true });

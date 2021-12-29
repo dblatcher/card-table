@@ -17,21 +17,6 @@ class Card {
         return `${this.value.name} of ${this.suit}`
     }
 
-    toElement(faceDown = false) {
-        const figure = document.createElement('figure');
-        figure.classList.add('card');
-        if (faceDown) {figure.classList.add('flip')}
-        figure.setAttribute('suit', this.suit);
-        const face = document.createElement('section');
-        face.classList.add('face');
-        face.innerHTML = `<span class="value">${this.value.symbol}</span>`
-        figure.appendChild(face)
-        const back = document.createElement('section');
-        back.classList.add('back');
-        figure.appendChild(back)
-        return figure;
-    }
-
     static suits = suits
     static cardValueList = cardValueList
     static value = cardValues

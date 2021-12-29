@@ -10,6 +10,7 @@
 
     &:empty {
         box-shadow: 0 0 black;
+        background: radial-gradient(black, transparent 1.5em);
     }
 
     .card {
@@ -17,5 +18,4 @@
         left: 0;
         top: 0;
     }
-
 }
