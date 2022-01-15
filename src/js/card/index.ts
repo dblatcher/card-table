@@ -3,6 +3,7 @@ import { CardValue, cardValues, cardValueList } from "./values"
 type Suit = "clubs" | "hearts" | "diamonds" | "spades"
 const suits: readonly Suit[] = Object.freeze(["clubs", "hearts", "diamonds", "spades"])
 
+type SerialisedCard = [string?, Suit?];
 
 class Card {
     suit?: Suit
@@ -27,7 +28,17 @@ class Card {
     static suits = suits
     static cardValueList = cardValueList
     static value = cardValues
+
+    serialise(): SerialisedCard {
+        return [this.value?.name, this.suit]
+    }
+
+    static deserialise(serialisedCard: SerialisedCard): Card {
+        const [valueName, suit] = serialisedCard;
+        let cardValueKey: string | number = isNaN(Number(valueName)) ? valueName.toUpperCase() : Number(valueName)
+        return new Card(cardValues[cardValueKey], suit)
+    }
 }
 
-export type { Suit }
-export { Card, cardValues, CardValue }
+export type { Suit, SerialisedCard }
+export { Card, CardValue }

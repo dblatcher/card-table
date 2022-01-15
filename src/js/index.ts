@@ -127,6 +127,8 @@ function init() {
     render();
     (window as any).addPile = addPile;
     (window as any).piles = piles;
+    (window as any).Card = Card;
+    (window as any).Pile = Pile;
 }
 
 window.addEventListener('load', init, { once: true });

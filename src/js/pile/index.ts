@@ -1,6 +1,6 @@
-import { Card } from "../card";
+import { Card, SerialisedCard } from "../card";
 
-
+type SerialisedPile = { cards: SerialisedCard[], faceDown: boolean };
 
 class Pile {
     cards: Card[]
@@ -23,7 +23,7 @@ class Pile {
     }
 
     static ofNewDeckWithJokers(faceDown = false): Pile {
-        const pile =  Pile.ofNewDeck(faceDown)
+        const pile = Pile.ofNewDeck(faceDown)
         pile.cards.push(new Card(Card.value.JOKER))
         pile.cards.push(new Card(Card.value.JOKER))
         return pile
@@ -53,6 +53,18 @@ class Pile {
         if (this.cards.length === 0) { return }
         destination.cards.unshift(this.cards.shift())
         return this
+    }
+
+    serialise(): SerialisedPile {
+        return {
+            cards: this.cards.map(card => card.serialise()),
+            faceDown: this.faceDown
+        }
+    }
+
+    static deserialise(serialisedPile: SerialisedPile): Pile {
+        const { cards, faceDown } = serialisedPile;
+        return new Pile(cards.map(serialisedCard => Card.deserialise(serialisedCard)), faceDown)
     }
 }
 
