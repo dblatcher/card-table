@@ -51,9 +51,25 @@ class Pile {
         return this
     }
 
-    dealTo(destination: Pile): Pile {
+    flipCards(): Pile {
+        this.faceDown = !this.faceDown
+        return this
+    }
+
+    dealTo(destination: Pile, cardOrIndex?: Card | number): Pile {
         if (this.cards.length === 0) { return }
-        destination.cards.unshift(this.cards.shift())
+
+        let index = 0;
+
+        if (typeof cardOrIndex === 'number') {
+            if (cardOrIndex >= this.cards.length) { return }
+            index = cardOrIndex
+        } else if (cardOrIndex instanceof Card) {
+            index = this.cards.indexOf(cardOrIndex)
+            if (index === -1) { return }
+        }
+
+        destination.cards.unshift(this.cards.splice(index, 1)[0])
         return this
     }
 
