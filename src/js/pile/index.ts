@@ -14,12 +14,19 @@ class Pile {
     static ofNewDeck(faceDown = false): Pile {
         const cards: Card[] = [];
         Card.suits.forEach(suit => {
-            Card.cardValueList.forEach(value => {
-                cards.push(new Card(suit, value))
+            Card.cardValueList.filter(cardValue => !cardValue.noSuit).forEach(value => {
+                cards.push(new Card(value, suit))
             })
         })
 
         return new Pile(cards, faceDown);
+    }
+
+    static ofNewDeckWithJokers(faceDown = false): Pile {
+        const pile =  Pile.ofNewDeck(faceDown)
+        pile.cards.push(new Card(Card.value.JOKER))
+        pile.cards.push(new Card(Card.value.JOKER))
+        return pile
     }
 
     get descriptions() {
@@ -42,9 +49,10 @@ class Pile {
         return this
     }
 
-    dealTo(destination: Pile) {
+    dealTo(destination: Pile): Pile {
         if (this.cards.length === 0) { return }
         destination.cards.unshift(this.cards.shift())
+        return this
     }
 }
 

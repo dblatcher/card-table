@@ -6,19 +6,15 @@ import { Pile } from "./pile";
 let tableElement: Element;
 
 const piles = [
+    Pile.ofNewDeckWithJokers(),
     new Pile([
-        new Card("diamonds", Card.value[2]),
-        new Card("diamonds", Card.value[3]),
-        new Card("diamonds", Card.value[7]),
-        new Card("diamonds", Card.value["JACK"]),
-    ], false).shuffle(),
-    new Pile([
-        new Card("clubs", Card.value["JACK"]),
+        new Card(Card.value["QUEEN"], "clubs"),
     ]),
     new Pile([
+        new Card(),
     ]),
     new Pile([
-        new Card("spades", Card.value["JACK"]),
+        new Card(Card.value["JACK"], "diamonds"),
     ]),
 ]
 
@@ -46,13 +42,13 @@ function makePileElement(pile: Pile) {
 function makeCardElement(card: Card, faceDown = false) {
     const cardElement = document.createElement('figure');
     cardElement.classList.add('card');
-    if (faceDown) {cardElement.classList.add('flip')}
+    if (faceDown) { cardElement.classList.add('flip') }
     cardElement.setAttribute('suit', card.suit);
     cardElement.setAttribute('draggable', "true");
 
     const face = document.createElement('section');
     face.classList.add('face');
-    face.innerHTML = `<span class="value">${card.value.symbol}</span>`
+    face.innerHTML = `<span class="value">${card.symbol}</span>`
     cardElement.appendChild(face)
 
     const back = document.createElement('section');
@@ -129,7 +125,8 @@ function init() {
     })
 
     render();
-    (window as any).addPile = addPile
+    (window as any).addPile = addPile;
+    (window as any).piles = piles;
 }
 
 window.addEventListener('load', init, { once: true });
