@@ -6,16 +6,20 @@ import { Pile } from "./pile";
 let tableElement: Element;
 
 const piles = [
-    Pile.ofNewDeckWithJokers(),
     new Pile([
         new Card(Card.value["QUEEN"], "clubs"),
+        new Card(Card.value["QUEEN"], "hearts"),
+        new Card(Card.value["QUEEN"], "diamonds"),
+        new Card(Card.value[4], "diamonds"),
+        new Card(Card.value[7], "diamonds"),
+    ], false, true),
+    new Pile([
+        // new Card(),
     ]),
     new Pile([
-        new Card(),
+        // new Card(Card.value["JACK"], "diamonds"),
     ]),
-    new Pile([
-        new Card(Card.value["JACK"], "diamonds"),
-    ]),
+    Pile.ofNewDeckWithJokers(),
 ]
 
 function makePileElement(pile: Pile) {
@@ -23,7 +27,7 @@ function makePileElement(pile: Pile) {
     const index = piles.indexOf(pile)
     const pileElement = document.createElement('div');
     pileElement.classList.add('pile')
-
+    if (pile.spread) { pileElement.classList.add('spread') }
 
     pileElement.addEventListener('dragover', event => { event.preventDefault() });
     pileElement.addEventListener('dragenter', event => { event.preventDefault() });
@@ -71,6 +75,7 @@ function renderPile(pile: Pile, pileElement: Element) {
 function dragHandler(event: DragEvent) {
     event.dataTransfer.effectAllowed = "move";
     if (event.target instanceof HTMLElement) {
+        // to do - if the pile is spread, need to move the card selected, not always card[0]
         event.dataTransfer.setData("text/plain", event.target.parentElement.getAttribute('pileindex'));
     }
 

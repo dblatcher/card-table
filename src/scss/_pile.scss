@@ -18,4 +18,23 @@
         left: 0;
         top: 0;
     }
+
+    &.spread {
+        display: inline-flex;
+        box-shadow: 0 0 black;
+        flex-basis: 100%;
+        overflow-y: clip;
+        overflow-x: auto;
+
+        .card {
+            position: relative;
+            flex-basis: 2.5em;
+            flex-shrink: 0;
+
+            &.flip {
+                left: 1.5em;
+            }
+        }
+
+    }
 }

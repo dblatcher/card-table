@@ -1,14 +1,16 @@
 import { Card, SerialisedCard } from "../card";
 
-type SerialisedPile = { cards: SerialisedCard[], faceDown: boolean };
+type SerialisedPile = { cards: SerialisedCard[], faceDown: boolean, spread: boolean };
 
 class Pile {
     cards: Card[]
     faceDown: boolean
+    spread: boolean
 
-    constructor(cards: Card[], faceDown = false) {
+    constructor(cards: Card[], faceDown = false, spread = false) {
         this.cards = cards
         this.faceDown = faceDown
+        this.spread = spread
     }
 
     static ofNewDeck(faceDown = false): Pile {
@@ -58,14 +60,15 @@ class Pile {
     serialise(): SerialisedPile {
         return {
             cards: this.cards.map(card => card.serialise()),
-            faceDown: this.faceDown
+            faceDown: this.faceDown,
+            spread: this.spread,
         }
     }
 
     static deserialise(serialisedPile: SerialisedPile): Pile {
-        const { cards, faceDown } = serialisedPile;
-        return new Pile(cards.map(serialisedCard => Card.deserialise(serialisedCard)), faceDown)
+        const { cards, faceDown, spread } = serialisedPile;
+        return new Pile(cards.map(serialisedCard => Card.deserialise(serialisedCard)), faceDown, spread)
     }
 }
 
-export { Pile }
+export { Pile, SerialisedPile }
