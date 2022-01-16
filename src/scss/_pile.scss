@@ -1,40 +1,68 @@
 .pile {
+  border-radius: 0.5em;
+  width: 4em;
+  height: 6em;
+  position: relative;
+  margin: 0.8em 1em 0;
+  padding-bottom: 1.2em;
+  display: inline-block;
 
-    box-shadow: 5px 5px black;
-    border-radius: .5em;
-    width: 4em;
-    height: 6em;
-    position: relative;
-    margin: 1rem;
-    display: inline-block;
+  &:empty {
+    filter: unset;
+    background: radial-gradient(black, transparent 1.5em);
+  }
 
-    &:empty {
-        box-shadow: 0 0 black;
-        background: radial-gradient(black, transparent 1.5em);
-    }
+  .card {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  &[quantity="small"] {
+    filter: drop-shadow(2px 1px 2px black);
+  }
+
+  &[quantity="medium"] {
+    filter: drop-shadow(4px 2px 2px black);
+  }
+
+  &[quantity="big"] {
+    filter: drop-shadow(6px 3px 2px black);
+  }
+
+  &[quantity="huge"] {
+    filter: drop-shadow(8px 4px 2px black);
+  }
+
+  &.spread {
+    display: inline-flex;
+    filter: unset;
+    flex-basis: 16rem;
+    overflow-y: clip;
+    overflow-x: auto;
 
     .card {
-        position: absolute;
-        left: 0;
-        top: 0;
+      position: relative;
+      flex-basis: 4em;
+      flex-shrink: 0;
+
+      &.flip {
+        left: 1.5em;
+      }
     }
 
-    &.spread {
-        display: inline-flex;
-        box-shadow: 0 0 black;
-        flex-basis: 100%;
-        overflow-y: clip;
-        overflow-x: auto;
-
-        .card {
-            position: relative;
-            flex-basis: 2.5em;
-            flex-shrink: 0;
-
-            &.flip {
-                left: 1.5em;
-            }
-        }
-
+    &[quantity="small"] .card {
+      flex-basis: 3em;
     }
+    &[quantity="medium"] .card {
+      flex-basis: 2.5em;
+    }
+    &[quantity="big"] .card {
+      flex-basis: 2.5em;
+    }
+
+    &[quantity="huge"] .card {
+      flex-basis: 2.1em;
+    }
+  }
 }

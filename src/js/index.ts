@@ -13,6 +13,14 @@ interface CardDragData {
     cardIndex?: number
 }
 
+function getQuantityAttribute(quantity: number): string {
+    if (quantity <= 1) { return 'none' }
+    if (quantity <= 5) { return 'small' }
+    if (quantity <= 10) { return 'medium' }
+    if (quantity <= 15) { return 'big' }
+    return 'huge'
+}
+
 const piles = [
     new Pile([
         new Card(Card.value["QUEEN"], "clubs"),
@@ -56,7 +64,7 @@ function makePileElement(pile: Pile): HTMLElement {
         render()
     })
 
-    pileElement.addEventListener('contextmenu',event => {
+    pileElement.addEventListener('contextmenu', event => {
         event.preventDefault();
         pile.spread = !pile.spread
         render()
@@ -95,6 +103,8 @@ function renderPile(pile: Pile, pileElement: Element) {
     } else {
         pileElement.classList.remove('spread');
     }
+
+    pileElement.setAttribute('quantity', getQuantityAttribute(pile.cards.length) );
 
     while (pileElement.childElementCount > 0) {
         pileElement.removeChild(pileElement.firstElementChild)
