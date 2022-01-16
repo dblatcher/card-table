@@ -1,7 +1,8 @@
-
 import "../scss/base.scss";
 import { Card } from "./card";
 import { Pile } from "./pile";
+import { makeCardElement, makePileElement, setPileElementAttributes } from "./elements";
+
 
 let tableElement: Element;
 
@@ -13,13 +14,6 @@ interface CardDragData {
     cardIndex?: number
 }
 
-function getQuantityAttribute(quantity: number): string {
-    if (quantity <= 1) { return 'none' }
-    if (quantity <= 5) { return 'small' }
-    if (quantity <= 10) { return 'medium' }
-    if (quantity <= 15) { return 'big' }
-    return 'huge'
-}
 
 const piles = [
     new Pile([
@@ -45,72 +39,33 @@ const piles = [
     Pile.ofNewDeckWithJokers(),
 ]
 
-function makePileElement(pile: Pile): HTMLElement {
-    const pileElement = document.createElement('div');
-    pileElement.classList.add('pile')
-    if (pile.spread) { pileElement.classList.add('spread') }
 
-    pileElement.addEventListener('dragover', event => { event.preventDefault() });
-    pileElement.addEventListener('dragenter', event => { event.preventDefault() });
-    pileElement.addEventListener('drop', dropHandler);
-    pileElement.setAttribute('droptarget', "true")
 
-    pileElement.addEventListener('click', () => {
-        if (pile.spread) {
-            pile.flipCards()
-        } else {
-            pile.turnOver()
-        }
-        render()
-    })
-
-    pileElement.addEventListener('contextmenu', event => {
-        event.preventDefault();
-        pile.spread = !pile.spread
-        render()
-    })
-
-    elementToPileMap.set(pileElement, pile);
-    return pileElement
+function spreadOrCollectPile(pile: Pile): void {
+    pile.spread = !pile.spread
+    render()
 }
 
-function makeCardElement(card: Card, faceDown = false): HTMLElement {
-    const cardElement = document.createElement('figure');
-    cardElement.classList.add('card');
-    if (faceDown) { cardElement.classList.add('flip') }
-
-    cardElement.setAttribute('suit', card.suit);
-    cardElement.setAttribute('draggable', "true");
-
-    const face = document.createElement('section');
-    face.classList.add('face');
-    face.innerHTML = `<span class="value">${card.symbol}</span>`
-    cardElement.appendChild(face)
-
-    const back = document.createElement('section');
-    back.classList.add('back');
-    cardElement.appendChild(back)
-
-    elementToCardMap.set(cardElement, card)
-    return cardElement;
+function turnOverPile(pile: Pile): void {
+    if (pile.spread) {
+        pile.flipCards()
+    } else {
+        pile.turnOver()
+    }
+    render()
 }
 
 function renderPile(pile: Pile, pileElement: Element) {
-    if (!pileElement) { return }
 
-    if (pile.spread) {
-        pileElement.classList.add('spread');
-    } else {
-        pileElement.classList.remove('spread');
-    }
-
-    pileElement.setAttribute('quantity', getQuantityAttribute(pile.cards.length) );
+    setPileElementAttributes(pile,pileElement)
 
     while (pileElement.childElementCount > 0) {
         pileElement.removeChild(pileElement.firstElementChild)
     }
     pile.cards.forEach(card => {
-        pileElement.prepend(makeCardElement(card, pile.faceDown));
+        const cardElement = makeCardElement(card, pile.faceDown, cardDragHandler)
+        pileElement.prepend(cardElement);
+        elementToCardMap.set(cardElement, card)
     })
 }
 
@@ -144,7 +99,7 @@ function parseCardDragData(event: DragEvent): CardDragData {
     return data
 }
 
-function dropHandler(event: DragEvent) {
+function dropOnPileHandler(event: DragEvent) {
     let targetPile: Pile;
 
     const data = parseCardDragData(event)
@@ -166,20 +121,16 @@ function dropHandler(event: DragEvent) {
 }
 
 function render() {
-    const pileElements = [...tableElement.querySelectorAll('.pile')];
     elementToCardMap.clear();
-    piles.forEach((pile, index) => { renderPile(pile, pileElements[index]) })
-
-    const cardElements = [...document.querySelectorAll('.card')];
-    cardElements.forEach(cardElement => {
-        cardElement.addEventListener('dragstart', cardDragHandler)
-    })
+    elementToPileMap.forEach((pile, pileElement) => { renderPile(pile, pileElement) })
 }
 
 function addPile() {
-    const newPile = new Pile([])
-    piles.push(newPile)
-    tableElement.appendChild(makePileElement(newPile))
+    const pile = new Pile([])
+    piles.push(pile)
+    const pileElement = makePileElement(pile, dropOnPileHandler, spreadOrCollectPile, turnOverPile);
+    elementToPileMap.set(pileElement, pile);
+    tableElement.appendChild(pileElement);
     render()
 }
 
@@ -187,7 +138,9 @@ function init() {
     tableElement = document.querySelector(".table");
 
     piles.forEach(pile => {
-        tableElement.appendChild(makePileElement(pile))
+        const pileElement = makePileElement(pile, dropOnPileHandler, spreadOrCollectPile, turnOverPile);
+        elementToPileMap.set(pileElement, pile);
+        tableElement.appendChild(pileElement);
     })
 
     render();
