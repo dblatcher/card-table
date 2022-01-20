@@ -2,6 +2,7 @@ import "../scss/base.scss";
 import { Card } from "./card";
 import { Pile } from "./pile";
 import { makeCardElement, makePileElement, setPileElementAttributes } from "./elements";
+import { animatedElementMove } from "./animation";
 
 
 let tableElement: Element;
@@ -100,7 +101,7 @@ function parseCardDragData(event: DragEvent): CardDragData {
 }
 
 function dropOnPileHandler(event: DragEvent) {
-    let targetPile: Pile;
+    let targetPile: Pile, targetPileElement:Element;
 
     const data = parseCardDragData(event)
 
@@ -108,7 +109,7 @@ function dropOnPileHandler(event: DragEvent) {
     const sourceCard = sourcePile?.cards[data.cardIndex];
 
     if (event.target instanceof HTMLElement) {
-        const targetPileElement = event.target.closest('[droptarget]')
+        targetPileElement = event.target.closest('[droptarget]')
         if (targetPileElement) {
             targetPile = elementToPileMap.get(targetPileElement)
         }
@@ -117,7 +118,26 @@ function dropOnPileHandler(event: DragEvent) {
     if (!targetPile || !sourcePile) { return }
 
     sourcePile.dealTo(targetPile, sourceCard)
-    render()
+
+    let sourceCardElement:Element
+    elementToCardMap.forEach( (card, cardElement) => {
+        if (card === sourceCard) {
+            sourceCardElement = cardElement
+        }
+    } )
+    
+
+    animatedElementMove(
+        sourceCardElement as HTMLElement, 
+        ()=> { targetPileElement.appendChild(sourceCardElement)}, 
+        {
+            "rotateY":  sourceCardElement.classList.contains('flip') ? '180deg' : '0deg',
+            "rotateZ": '10deg'
+        },
+        {"flip":targetPile.faceDown}
+    )
+
+    //render()
 }
 
 function render() {
