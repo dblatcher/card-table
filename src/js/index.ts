@@ -58,7 +58,7 @@ function turnOverPile(pile: Pile): void {
 
 function renderPile(pile: Pile, pileElement: Element) {
 
-    setPileElementAttributes(pile,pileElement)
+    setPileElementAttributes(pile, pileElement)
 
     while (pileElement.childElementCount > 0) {
         pileElement.removeChild(pileElement.firstElementChild)
@@ -101,7 +101,7 @@ function parseCardDragData(event: DragEvent): CardDragData {
 }
 
 function dropOnPileHandler(event: DragEvent) {
-    let targetPile: Pile, targetPileElement:Element;
+    let targetPile: Pile, targetPileElement: HTMLElement, sourceCardElement: HTMLElement;
 
     const data = parseCardDragData(event)
 
@@ -109,7 +109,7 @@ function dropOnPileHandler(event: DragEvent) {
     const sourceCard = sourcePile?.cards[data.cardIndex];
 
     if (event.target instanceof HTMLElement) {
-        targetPileElement = event.target.closest('[droptarget]')
+        targetPileElement = event.target.closest('[droptarget]');
         if (targetPileElement) {
             targetPile = elementToPileMap.get(targetPileElement)
         }
@@ -117,24 +117,27 @@ function dropOnPileHandler(event: DragEvent) {
 
     if (!targetPile || !sourcePile) { return }
 
+    elementToCardMap.forEach((card, cardElement) => {
+        if (card === sourceCard) {
+            sourceCardElement = cardElement as HTMLElement
+        }
+    })
+
     sourcePile.dealTo(targetPile, sourceCard)
 
-    let sourceCardElement:Element
-    elementToCardMap.forEach( (card, cardElement) => {
-        if (card === sourceCard) {
-            sourceCardElement = cardElement
-        }
-    } )
-    
-
     animatedElementMove(
-        sourceCardElement as HTMLElement, 
-        ()=> { targetPileElement.appendChild(sourceCardElement)}, 
-        {
-            "rotateY":  sourceCardElement.classList.contains('flip') ? '180deg' : '0deg',
-            "rotateZ": '10deg'
+        sourceCardElement as HTMLElement,
+        () => {
+            targetPileElement.appendChild(sourceCardElement)
         },
-        {"flip":targetPile.faceDown}
+        {
+            speed: 100,
+            startingTransforms: {
+                "rotateY": sourceCardElement.classList.contains('flip') ? '180deg' : '0deg',
+                "rotateZ": '10deg'
+            },
+            endingClasses: { "flip": targetPile.faceDown }
+        }
     )
 
     //render()
