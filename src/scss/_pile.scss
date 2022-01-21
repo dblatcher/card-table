@@ -59,14 +59,14 @@
       flex-basis: 3em;
     }
     &[quantity="medium"] .card {
-      flex-basis: 2.5em;
+      flex-basis: 2em;
     }
     &[quantity="big"] .card {
-      flex-basis: 2.5em;
+      flex-basis: 1.5em;
     }
 
     &[quantity="huge"] .card {
-      flex-basis: 2.1em;
+      flex-basis: .9em;
     }
   }
 }

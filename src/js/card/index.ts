@@ -1,7 +1,5 @@
 import { CardValue, cardValues, cardValueList } from "./values"
-
-type Suit = "clubs" | "hearts" | "diamonds" | "spades"
-const suits: readonly Suit[] = Object.freeze(["clubs", "hearts", "diamonds", "spades"])
+import {Suit, suits, getSuitSymbol} from "./suits"
 
 type SerialisedCard = [string?, Suit?];
 
@@ -23,6 +21,10 @@ class Card {
     get symbol(): string {
         if (this.value) { return this.value.symbol }
         return "_";
+    }
+
+    get suitSymbol(): string {
+        return getSuitSymbol(this.suit)
     }
 
     static suits = suits

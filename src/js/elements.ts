@@ -1,8 +1,8 @@
-import { Card } from "./card";
+import { Card, Suit } from "./card";
 import { Pile } from "./pile";
 
 function makeCardElement(
-    card: Card, 
+    card: Card,
     faceDown = false,
     cardDragHandler?: EventListener
 ): HTMLElement {
@@ -15,7 +15,17 @@ function makeCardElement(
 
     const face = document.createElement('section');
     face.classList.add('face');
-    face.innerHTML = `<span class="value">${card.symbol}</span>`
+    face.innerHTML = `
+    <span class="top-value">
+        <span>${card.suitSymbol}</span>
+        <span>${card.symbol}</span>
+    </span>
+    <span class="middle">${card.symbol}</span>
+    <span class="bottom-value">
+        <span>${card.suitSymbol}</span>
+        <span>${card.symbol}</span>
+    </span>
+    `
     cardElement.appendChild(face)
 
     const back = document.createElement('section');
@@ -66,7 +76,7 @@ function getQuantityAttribute(quantity: number): string {
     return 'huge'
 }
 
-function setPileElementAttributes(pile: Pile, pileElement: Element)  {
+function setPileElementAttributes(pile: Pile, pileElement: Element) {
 
     if (pile.spread) {
         pileElement.classList.add('spread');

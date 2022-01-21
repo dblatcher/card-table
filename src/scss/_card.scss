@@ -34,23 +34,28 @@
     .face {
         background-color: antiquewhite;
 
-        &::before, &::after {
-            font-size: 150%;
+        &::after, .top-value, .bottom-value {
             position: absolute;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 100%;
+            line-height: 1;
         }
 
-        &::before {
+        .top-value {
             top: 0%;
             left: 0%;
+            flex-direction: column;
         }
-
-        &::after {
+        
+        .bottom-value {
             bottom: 0%;
             right: 0%;
+            flex-direction: column-reverse;
         }
 
-
-        .value {
+        .middle {
             position: absolute;
             font-size: 200%;
             top: 50%;
@@ -59,37 +64,20 @@
         }
     }
 
-
-
     &[suit="hearts"] .face {
         color: red;
-
-        &::before, &::after {
-            content: '\2665';
-        }
     }
 
     &[suit="diamonds"] .face {
         color: red;
 
-        &::before, &::after {
-            content: '\2666';
-        }
     }
 
     &[suit="spades"] .face {
         color: black;
-
-        &::before, &::after {
-            content: '\2660';
-        }
     }
 
     &[suit="clubs"] .face {
         color: black;
-
-        &::before, &::after {
-            content: '\2667';
-        }
     }
 }
