@@ -37,9 +37,13 @@
   &.spread {
     display: inline-flex;
     filter: unset;
-    flex-basis: 16rem;
-    overflow-y: clip;
-    overflow-x: auto;
+    width: unset;
+
+    &.scrolling {
+      flex-basis: 16rem;
+      overflow-y: clip;
+      overflow-x: auto;
+    }
 
     .card {
       position: relative;
