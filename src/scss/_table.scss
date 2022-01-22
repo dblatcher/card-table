@@ -1,0 +1,15 @@
+
+.table {
+    padding: 1rem;
+    border: 2px outset brown;
+    background-color: green;
+    display: flex;
+    flex-wrap: wrap;
+
+    &--outlined {
+
+        .spread.pile  {
+            border: 1px dashed white;
+        }
+    }
+}
