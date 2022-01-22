@@ -40,7 +40,25 @@ const piles = [
     Pile.ofNewDeckWithJokers(),
 ]
 
+function findElementForPile(sourcePile: Pile): Element {
+    let sourcePileElement
+    elementToPileMap.forEach((pile, pileElement) => {
+        if (pile === sourcePile) {
+            sourcePileElement = pileElement
+        }
+    })
+    return sourcePileElement
+}
 
+function findElementForCard(sourceCard: Card): Element {
+    let sourcePileElement
+    elementToCardMap.forEach((card, cardElement) => {
+        if (card === sourceCard) {
+            sourcePileElement = cardElement
+        }
+    })
+    return sourcePileElement
+}
 
 function spreadOrCollectPile(pile: Pile): void {
     pile.spread = !pile.spread
@@ -101,7 +119,7 @@ function parseCardDragData(event: DragEvent): CardDragData {
 }
 
 function dropOnPileHandler(event: DragEvent) {
-    let targetPile: Pile, targetPileElement: HTMLElement, sourceCardElement: HTMLElement;
+    let targetPile: Pile, targetPileElement: HTMLElement, sourceCardElement: HTMLElement, sourcePileElement: HTMLElement;
 
     const data = parseCardDragData(event)
 
@@ -117,11 +135,8 @@ function dropOnPileHandler(event: DragEvent) {
 
     if (!targetPile || !sourcePile) { return }
 
-    elementToCardMap.forEach((card, cardElement) => {
-        if (card === sourceCard) {
-            sourceCardElement = cardElement as HTMLElement
-        }
-    })
+    sourceCardElement = findElementForCard(sourceCard) as HTMLElement
+    sourcePileElement = findElementForPile(sourcePile) as HTMLElement
 
     sourcePile.dealTo(targetPile, sourceCard)
 
@@ -140,7 +155,8 @@ function dropOnPileHandler(event: DragEvent) {
         }
     )
 
-    //render()
+    setPileElementAttributes(targetPile, targetPileElement);
+    setPileElementAttributes(sourcePile, sourcePileElement)
 }
 
 function render() {
