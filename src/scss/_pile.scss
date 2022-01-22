@@ -9,7 +9,15 @@
 
   &:empty {
     filter: unset;
-    background: radial-gradient(black, transparent 1.5em);
+
+    &:after {
+      content: '';
+      width: 4em;
+      height: 6em;
+      border-radius: .5em;
+      display: inline-block;
+      background: repeating-linear-gradient(45deg, transparent .4em, whitesmoke .5em, transparent .6em)
+    }
   }
 
   .card {
