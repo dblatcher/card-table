@@ -1,5 +1,5 @@
-import { Card, Suit } from "./card";
-import { Pile } from "./pile";
+import { Card, Suit } from "../card";
+import { Pile } from "../pile";
 
 function makeCardElement(
     card: Card,
