@@ -62,7 +62,8 @@ function findElementForCard(sourceCard: Card): Element {
 
 function spreadOrCollectPile(pile: Pile): void {
     pile.spread = !pile.spread
-    render()
+    if (pile.cards.length === 0) { pile.spread = false }
+    setPileElementAttributes(pile, findElementForPile(pile))
 }
 
 function turnOverPile(pile: Pile): void {
@@ -71,7 +72,8 @@ function turnOverPile(pile: Pile): void {
     } else {
         pile.turnOver()
     }
-    render()
+
+    renderPile(pile, findElementForPile(pile))
 }
 
 function renderPile(pile: Pile, pileElement: Element) {
@@ -155,22 +157,19 @@ function dropOnPileHandler(event: DragEvent) {
         }
     )
 
+    if (sourcePile.cards.length === 0) { sourcePile.spread = false }
     setPileElementAttributes(targetPile, targetPileElement);
     setPileElementAttributes(sourcePile, sourcePileElement)
 }
 
-function render() {
-    elementToCardMap.clear();
-    elementToPileMap.forEach((pile, pileElement) => { renderPile(pile, pileElement) })
-}
 
 function addPile() {
     const pile = new Pile([])
     piles.push(pile)
     const pileElement = makePileElement(pile, dropOnPileHandler, spreadOrCollectPile, turnOverPile);
     elementToPileMap.set(pileElement, pile);
+    setPileElementAttributes(pile, pileElement);
     tableElement.appendChild(pileElement);
-    render()
 }
 
 function init() {
@@ -180,13 +179,16 @@ function init() {
         const pileElement = makePileElement(pile, dropOnPileHandler, spreadOrCollectPile, turnOverPile);
         elementToPileMap.set(pileElement, pile);
         tableElement.appendChild(pileElement);
-    })
+    });
 
-    render();
-    (window as any).addPile = addPile;
-    (window as any).piles = piles;
-    (window as any).Card = Card;
-    (window as any).Pile = Pile;
+    elementToPileMap.forEach((pile, pileElement) => { renderPile(pile, pileElement) });
+
+    const myWindow = window as any;
+
+    myWindow.addPile = addPile;
+    myWindow.piles = piles;
+    myWindow.Card = Card;
+    myWindow.Pile = Pile;
 }
 
 window.addEventListener('load', init, { once: true });
