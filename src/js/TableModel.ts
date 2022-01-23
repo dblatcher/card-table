@@ -1,0 +1,40 @@
+import { Card } from "./card";
+import { Pile } from "./pile";
+
+class TableModel {
+
+    piles:Pile[]
+    tableElement: Element
+    elementToPileMap: Map<Element, Pile>
+    elementToCardMap: Map<Element, Card>
+
+    constructor(piles:Pile[], tableElement: Element) {
+        this.piles = piles
+        this.tableElement = tableElement;
+        this.elementToPileMap = new Map<Element, Pile>();
+        this.elementToCardMap = new Map<Element, Card>();
+    }
+
+    findElementForPile(sourcePile: Pile): Element {
+        let sourcePileElement
+        this.elementToPileMap.forEach((pile, pileElement) => {
+            if (pile === sourcePile) {
+                sourcePileElement = pileElement
+            }
+        })
+        return sourcePileElement
+    }
+
+    findElementForCard(sourceCard: Card): Element {
+        let sourcePileElement
+        this.elementToCardMap.forEach((card, cardElement) => {
+            if (card === sourceCard) {
+                sourcePileElement = cardElement
+            }
+        })
+        return sourcePileElement
+    }
+
+}
+
+export { TableModel }
