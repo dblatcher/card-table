@@ -1,0 +1,133 @@
+import { animatedElementMove } from "../animation";
+import { makeCardElement, makePileElement, setPileElementAttributes } from "../elements";
+import { Pile } from "../pile";
+import { TableModel } from "../TableModel";
+
+interface CardDragData {
+    pileIndex?: number
+    cardIndex?: number
+}
+
+class TableApp extends TableModel {
+
+    constructor(piles: Pile[], tableElement: Element) {
+        super(piles, tableElement)
+
+        this.cardDragHandler = this.cardDragHandler.bind(this)
+        this.dropOnPileHandler = this.dropOnPileHandler.bind(this)
+        this.spreadOrCollectPile = this.spreadOrCollectPile.bind(this)
+        this.turnOverPile = this.turnOverPile.bind(this)
+
+        this.piles.forEach(pile => {
+            const pileElement = makePileElement(pile, this.dropOnPileHandler, this.spreadOrCollectPile, this.turnOverPile);
+            this.elementToPileMap.set(pileElement, pile);
+            this.renderPile(pile, pileElement)
+            this.tableElement.appendChild(pileElement);
+        });
+    }
+
+    renderPile(pile: Pile, pileElement: Element) {
+
+        setPileElementAttributes(pile, pileElement)
+
+        while (pileElement.childElementCount > 0) {
+            pileElement.removeChild(pileElement.firstElementChild)
+        }
+        pile.cards.forEach(card => {
+            const cardElement = makeCardElement(card, pile.faceDown, this.cardDragHandler)
+            pileElement.prepend(cardElement);
+            this.elementToCardMap.set(cardElement, card)
+        })
+    }
+
+    parseCardDragData(event: DragEvent): CardDragData {
+        let data: any = {}
+    
+        try {
+            data = JSON.parse(event.dataTransfer.getData("text/plain"))
+        } catch (error) {
+            console.warn(error)
+        }
+    
+        return data
+    }
+
+    cardDragHandler(event: DragEvent) {
+        event.dataTransfer.effectAllowed = "move";
+    
+        if (event.currentTarget instanceof HTMLElement) {
+            const card = this.elementToCardMap.get(event.currentTarget)
+            const pile = this.elementToPileMap.get(event.currentTarget.parentElement);
+    
+            if (!pile) { return }
+    
+            const data: CardDragData = {
+                pileIndex: this.piles.indexOf(pile),
+                cardIndex: pile.spread ? pile.cards.indexOf(card) : 0,
+            }
+    
+            event.dataTransfer.setData("text/plain", JSON.stringify(data));
+        }
+    }
+
+    dropOnPileHandler(event: DragEvent) {
+        let targetPile: Pile, targetPileElement: HTMLElement, sourceCardElement: HTMLElement, sourcePileElement: HTMLElement;
+    
+        const data = this.parseCardDragData(event)
+    
+        const sourcePile = this.piles[data.pileIndex];
+        const sourceCard = sourcePile?.cards[data.cardIndex];
+    
+        if (event.target instanceof HTMLElement) {
+            targetPileElement = event.target.closest('[droptarget]');
+            if (targetPileElement) {
+                targetPile = this.elementToPileMap.get(targetPileElement)
+            }
+        }
+    
+        if (!targetPile || !sourcePile) { return }
+    
+        sourceCardElement = this.findElementForCard(sourceCard) as HTMLElement
+        sourcePileElement = this.findElementForPile(sourcePile) as HTMLElement
+    
+        sourcePile.dealTo(targetPile, sourceCard)
+    
+        animatedElementMove(
+            sourceCardElement as HTMLElement,
+            () => {
+                targetPileElement.appendChild(sourceCardElement)
+            },
+            {
+                speed: 100,
+                startingTransforms: {
+                    "rotateY": sourceCardElement.classList.contains('flip') ? '180deg' : '0deg',
+                    "rotateZ": '10deg'
+                },
+                endingClasses: { "flip": targetPile.faceDown }
+            }
+        )
+    
+        if (sourcePile.cards.length === 0) { sourcePile.spread = false }
+        setPileElementAttributes(targetPile, targetPileElement);
+        setPileElementAttributes(sourcePile, sourcePileElement)
+    }
+
+    spreadOrCollectPile(pile: Pile): void {
+        pile.spread = !pile.spread
+        if (pile.cards.length === 0) { pile.spread = false }
+        setPileElementAttributes(pile, this.findElementForPile(pile))
+    }
+
+    turnOverPile(pile: Pile): void {
+        if (pile.spread) {
+            pile.flipCards()
+        } else {
+            pile.turnOver()
+        }
+
+        this.renderPile(pile, this.findElementForPile(pile))
+    }
+
+}
+
+export { TableApp }
