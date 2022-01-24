@@ -1,7 +1,16 @@
 import { Card } from "./card"
 import { Pile } from "./pile"
 
-const initialPiles = [
+const initialPiles:Pile[] = [
+    Pile.ofNewDeckWithJokers(),
+    new Pile(),
+    new Pile(),
+    new Pile(),
+    new Pile(),
+    new Pile(),
+]
+
+const initialPiles2 = [
     new Pile([
         new Card(Card.value["QUEEN"], "clubs"),
         new Card(Card.value["QUEEN"], "hearts"),
@@ -25,4 +34,4 @@ const initialPiles = [
     Pile.ofNewDeckWithJokers(),
 ]
 
-export {initialPiles}
+export {initialPiles,initialPiles2}

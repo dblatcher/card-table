@@ -2,6 +2,7 @@ import { animatedElementMove } from "../animation";
 import { makeCardElement, makePileElement, setPileElementAttributes } from "./elements";
 import { Pile } from "../pile";
 import { TableModel } from "../TableModel";
+import { Card } from "../card";
 
 interface CardDragData {
     pileIndex?: number
@@ -37,6 +38,33 @@ class TableApp extends TableModel {
         const pileElement = this.findElementForPile(pile)
         setPileElementAttributes(pile, pileElement)
         this.removeAndRenderCards(pile, pileElement)
+    }
+
+    moveCard(sourceCard: Card, sourcePile: Pile, targetPile: Pile) {
+        const sourceCardElement = this.findElementForCard(sourceCard) as HTMLElement
+        const sourcePileElement = this.findElementForPile(sourcePile) as HTMLElement
+        const targetPileElement = this.findElementForPile(targetPile) as HTMLElement
+
+        sourcePile.dealTo(targetPile, sourceCard)
+
+        animatedElementMove(
+            sourceCardElement as HTMLElement,
+            () => {
+                targetPileElement.appendChild(sourceCardElement)
+            },
+            {
+                speed: 100,
+                startingTransforms: {
+                    "rotateY": sourceCardElement.classList.contains('flip') ? '180deg' : '0deg',
+                    "rotateZ": '10deg'
+                },
+                endingClasses: { "flip": targetPile.faceDown }
+            }
+        )
+
+        if (sourcePile.cards.length === 0) { sourcePile.spread = false }
+        setPileElementAttributes(targetPile, targetPileElement);
+        setPileElementAttributes(sourcePile, sourcePileElement)
     }
 
     protected registerPile(pile: Pile) {
@@ -92,7 +120,7 @@ class TableApp extends TableModel {
     }
 
     protected dropOnPileHandler(event: DragEvent) {
-        let targetPile: Pile, targetPileElement: HTMLElement, sourceCardElement: HTMLElement, sourcePileElement: HTMLElement;
+        let targetPile: Pile, targetPileElement: HTMLElement;
 
         const data = this.parseCardDragData(event)
         const sourcePile = this.piles[data.pileIndex];
@@ -105,31 +133,8 @@ class TableApp extends TableModel {
             }
         }
 
-        if (!targetPile || !sourcePile) { return }
-
-        sourceCardElement = this.findElementForCard(sourceCard) as HTMLElement
-        sourcePileElement = this.findElementForPile(sourcePile) as HTMLElement
-
-        sourcePile.dealTo(targetPile, sourceCard)
-
-        animatedElementMove(
-            sourceCardElement as HTMLElement,
-            () => {
-                targetPileElement.appendChild(sourceCardElement)
-            },
-            {
-                speed: 100,
-                startingTransforms: {
-                    "rotateY": sourceCardElement.classList.contains('flip') ? '180deg' : '0deg',
-                    "rotateZ": '10deg'
-                },
-                endingClasses: { "flip": targetPile.faceDown }
-            }
-        )
-
-        if (sourcePile.cards.length === 0) { sourcePile.spread = false }
-        setPileElementAttributes(targetPile, targetPileElement);
-        setPileElementAttributes(sourcePile, sourcePileElement)
+        if (!targetPile || !sourceCard) { return }
+        this.moveCard(sourceCard, sourcePile, targetPile);
     }
 
 }
