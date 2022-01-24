@@ -16,7 +16,7 @@ class TableApp extends TableModel {
         this.piles.forEach(pile => { this.registerPile(pile) });
     }
 
-    addPile(pile = new Pile([])): Pile {
+    addPile(pile = new Pile()): Pile {
         this.piles.push(pile)
         this.registerPile(pile)
         return pile;

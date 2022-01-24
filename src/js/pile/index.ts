@@ -1,19 +1,37 @@
 import { Card, SerialisedCard } from "../card";
 
-type SerialisedPile = { cards: SerialisedCard[], faceDown: boolean, spread: boolean };
 
-class Pile {
+
+interface PileConfig {
+    faceDown?: boolean
+    spread?: boolean
+    x?: number
+    y?: number
+}
+
+interface SerialisedPile extends Required<PileConfig> {
+    cards: SerialisedCard[]
+};
+
+class Pile implements Required<PileConfig> {
     cards: Card[]
     faceDown: boolean
     spread: boolean
+    x: number
+    y: number
 
-    constructor(cards: Card[], faceDown = false, spread = false) {
+    constructor(cards: Card[] = [], config: PileConfig = {}) {
+
+        const { faceDown = false, spread = false, x = 0, y = 0 } = config
+
         this.cards = cards
         this.faceDown = faceDown
         this.spread = spread
+        this.x = x
+        this.y = y
     }
 
-    static ofNewDeck(faceDown = false): Pile {
+    static ofNewDeck(config: PileConfig = {}): Pile {
         const cards: Card[] = [];
         Card.suits.forEach(suit => {
             Card.cardValueList.filter(cardValue => !cardValue.noSuit).forEach(value => {
@@ -21,11 +39,11 @@ class Pile {
             })
         })
 
-        return new Pile(cards, faceDown);
+        return new Pile(cards, config);
     }
 
-    static ofNewDeckWithJokers(faceDown = false): Pile {
-        const pile = Pile.ofNewDeck(faceDown)
+    static ofNewDeckWithJokers(config: PileConfig = {}): Pile {
+        const pile = Pile.ofNewDeck(config)
         pile.cards.push(new Card(Card.value.JOKER))
         pile.cards.push(new Card(Card.value.JOKER))
         return pile
@@ -78,12 +96,14 @@ class Pile {
             cards: this.cards.map(card => card.serialise()),
             faceDown: this.faceDown,
             spread: this.spread,
+            x: this.x,
+            y: this.y
         }
     }
 
     static deserialise(serialisedPile: SerialisedPile): Pile {
-        const { cards, faceDown, spread } = serialisedPile;
-        return new Pile(cards.map(serialisedCard => Card.deserialise(serialisedCard)), faceDown, spread)
+        const { cards, faceDown, spread, x, y } = serialisedPile;
+        return new Pile(cards.map(serialisedCard => Card.deserialise(serialisedCard)), { faceDown, spread, x, y })
     }
 }
 
