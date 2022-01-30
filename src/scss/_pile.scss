@@ -2,10 +2,10 @@
   border-radius: 0.5em;
   width: 4em;
   height: 6em;
-  position: relative;
   margin: 0.8em 1em 0;
   padding-bottom: 1.2em;
   display: inline-block;
+  position: absolute;
 
   &:empty {
     filter: unset;
@@ -77,4 +77,14 @@
       flex-basis: .9em;
     }
   }
+}
+
+.pile-control {
+  position: absolute;
+  display: inline-flex;
+  right: 0;
+  bottom: 0;
+  width: 2em;
+  height: 2em;
+  background-color: blueviolet;
 }

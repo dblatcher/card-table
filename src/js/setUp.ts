@@ -2,12 +2,9 @@ import { Card } from "./card"
 import { Pile } from "./pile"
 
 const initialPiles: Pile[] = [
-    Pile.ofNewDeckWithJokers(),
-    new Pile(),
-    new Pile(),
-    new Pile(),
-    new Pile(),
-    new Pile(),
+    Pile.ofNewDeckWithJokers({x:10,y:10}),
+    new Pile([],{x:30,y:130}),
+    new Pile([],{x:130,y:150}),
 ]
 
 const initialPiles2 = [

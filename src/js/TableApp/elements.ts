@@ -1,4 +1,4 @@
-import { Card, Suit } from "../card";
+import { Card } from "../card";
 import { Pile } from "../pile";
 
 function makeCardElement(
@@ -45,7 +45,8 @@ function makePileElement(
 ): HTMLElement {
     const pileElement = document.createElement('div');
     pileElement.classList.add('pile')
-    if (pile.spread) { pileElement.classList.add('spread') }
+    setPileElementAttributes(pile,pileElement)
+    setPileElementPosition(pile,pileElement)
 
     pileElement.addEventListener('dragover', event => { event.preventDefault() });
     pileElement.addEventListener('dragenter', event => { event.preventDefault() });
@@ -74,6 +75,11 @@ function getQuantityAttribute(quantity: number): string {
     if (quantity <= 10) { return 'medium' }
     if (quantity <= 15) { return 'big' }
     return 'huge'
+}
+
+function setPileElementPosition(pile: Pile, pileElement: Element) {
+    (pileElement as HTMLElement).style.top = `${pile.y}px`;
+    (pileElement as HTMLElement).style.left = `${pile.x}px`;
 }
 
 function setPileElementAttributes(pile: Pile, pileElement: Element) {

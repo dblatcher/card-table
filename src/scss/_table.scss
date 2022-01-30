@@ -1,10 +1,14 @@
 
 .table {
+    position: relative;
     padding: 1rem;
     border: 2px outset brown;
     background-color: green;
     display: flex;
     flex-wrap: wrap;
+
+    overflow: hidden;
+    min-height: 300px;
 
     &--outlined {
 
