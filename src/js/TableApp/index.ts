@@ -1,5 +1,5 @@
 import { animatedElementMove } from "../animation";
-import { makeCardElement, makePileElement, setPileElementAttributes } from "./elements";
+import { addCardElementToPileElement, makeCardElement, makePileElement, removeCardElements, setPileElementAttributes } from "./elements";
 import { Pile } from "../pile";
 import { TableModel } from "../TableModel";
 import { Card } from "../card";
@@ -60,7 +60,8 @@ class TableApp extends TableModel {
         animatedElementMove(
             sourceCardElement as HTMLElement,
             () => {
-                targetPileElement.appendChild(sourceCardElement)
+
+                addCardElementToPileElement(targetPileElement,sourceCardElement)
             },
             {
                 speed: 100,
@@ -91,12 +92,11 @@ class TableApp extends TableModel {
     }
 
     protected removeAndRenderCards(pile: Pile, pileElement: Element) {
-        while (pileElement.childElementCount > 0) {
-            pileElement.removeChild(pileElement.firstElementChild)
-        }
+        removeCardElements(pileElement)
+
         pile.cards.forEach(card => {
             const cardElement = makeCardElement(card, pile.faceDown, this.cardDragHandler.bind(this))
-            pileElement.prepend(cardElement);
+            addCardElementToPileElement(pileElement,cardElement, true)
             this.elementToCardMap.set(cardElement, card)
         })
     }

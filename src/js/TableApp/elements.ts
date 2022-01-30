@@ -93,4 +93,20 @@ function setPileElementAttributes(pile: Pile, pileElement: Element) {
     pileElement.setAttribute('quantity', getQuantityAttribute(pile.cards.length));
 }
 
-export { makeCardElement, makePileElement, setPileElementAttributes }
+function removeCardElements(pileElement:Element) {
+    while (pileElement.childElementCount > 0) {
+        pileElement.removeChild(pileElement.firstElementChild)
+    }
+}
+
+function addCardElementToPileElement(pileElement:Element, cardElement:Element, atBottom = false) {
+    //first card in the pile.cards array is the top card
+    // so the last cardElements must be in reversed order (so the last element to be rendered is the one on top)
+    if (atBottom) {
+        pileElement.prepend(cardElement);
+    } else {
+        pileElement.appendChild(cardElement)
+    }
+}
+
+export { makeCardElement, makePileElement, setPileElementAttributes, removeCardElements, addCardElementToPileElement }
