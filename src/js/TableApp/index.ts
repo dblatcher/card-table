@@ -29,15 +29,25 @@ class TableApp extends TableModel {
     }
 
     turnOverPile(pile: Pile): void {
-        if (pile.spread) {
-            pile.flipCards()
-        } else {
-            pile.turnOver()
-        }
-
         const pileElement = this.findElementForPile(pile)
-        setPileElementAttributes(pile, pileElement)
-        this.removeAndRenderCards(pile, pileElement)
+        animatedElementMove(
+            pileElement as HTMLElement,
+            () => {
+                if (pile.spread) {
+                    pile.flipCards()
+                } else {
+                    pile.turnOver()
+                }
+                setPileElementAttributes(pile, pileElement)
+                this.removeAndRenderCards(pile, pileElement)
+            },
+            {
+                time:.5,
+                startingTransforms: { 
+                    "rotateY": "-180deg"
+                }
+            }
+        )
     }
 
     moveCard(sourceCard: Card, sourcePile: Pile, targetPile: Pile) {
