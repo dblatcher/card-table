@@ -37,34 +37,55 @@ function makeCardElement(
     return cardElement;
 }
 
+
+function makeControlElement(
+    pile: Pile,
+    pileDragHandler?: EventListener,
+    leftClickAction?: { (pile: Pile): void },
+    rightClickAction?: { (pile: Pile): void }
+): HTMLElement {
+
+    const controlElement = document.createElement('figure');
+    controlElement.classList.add('pile-control');
+    controlElement.setAttribute('draggable', "true");
+    controlElement.addEventListener('dragstart', pileDragHandler);
+
+    controlElement.addEventListener('click', () => {
+        if (leftClickAction) {
+            leftClickAction(pile)
+        }
+    })
+
+    controlElement.addEventListener('contextmenu', event => {
+        if (rightClickAction) {
+            event.preventDefault()
+            rightClickAction(pile)
+        }
+    })
+
+    return controlElement
+}
+
 function makePileElement(
     pile: Pile,
     dropOnPileHandler: EventListener,
+    pileDragHandler?: EventListener,
     leftClickAction?: { (pile: Pile): void },
     rightClickAction?: { (pile: Pile): void }
 ): HTMLElement {
     const pileElement = document.createElement('div');
     pileElement.classList.add('pile')
-    setPileElementAttributes(pile,pileElement)
-    setPileElementPosition(pile,pileElement)
+    setPileElementAttributes(pile, pileElement)
+    setPileElementPosition(pile, pileElement)
 
     pileElement.addEventListener('dragover', event => { event.preventDefault() });
     pileElement.addEventListener('dragenter', event => { event.preventDefault() });
     pileElement.addEventListener('drop', dropOnPileHandler);
     pileElement.setAttribute('droptarget', "true")
 
-    pileElement.addEventListener('click', () => {
-        if (leftClickAction) {
-            leftClickAction(pile)
-        }
-    })
 
-    pileElement.addEventListener('contextmenu', event => {
-        if (rightClickAction) {
-            event.preventDefault()
-            rightClickAction(pile)
-        }
-    })
+    const controlElement = makeControlElement(pile, pileDragHandler, leftClickAction, rightClickAction);
+    pileElement.appendChild(controlElement)
 
     return pileElement
 }
@@ -90,16 +111,22 @@ function setPileElementAttributes(pile: Pile, pileElement: Element) {
         pileElement.classList.remove('spread');
     }
 
+    if (pile.cards.length === 0) {
+        pileElement.classList.add('no-cards');
+    } else {
+        pileElement.classList.remove('no-cards');
+    }
+
     pileElement.setAttribute('quantity', getQuantityAttribute(pile.cards.length));
 }
 
-function removeCardElements(pileElement:Element) {
-    while (pileElement.childElementCount > 0) {
-        pileElement.removeChild(pileElement.firstElementChild)
-    }
+function removeCardElements(pileElement: Element) {
+    [...pileElement.querySelectorAll('.card')].forEach(cardElement => {
+        pileElement.removeChild(cardElement)
+    })
 }
 
-function addCardElementToPileElement(pileElement:Element, cardElement:Element, atBottom = false) {
+function addCardElementToPileElement(pileElement: Element, cardElement: Element, atBottom = false) {
     //first card in the pile.cards array is the top card
     // so the last cardElements must be in reversed order (so the last element to be rendered is the one on top)
     if (atBottom) {

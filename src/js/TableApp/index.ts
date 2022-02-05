@@ -4,9 +4,28 @@ import { Pile } from "../pile";
 import { TableModel } from "../TableModel";
 import { Card } from "../card";
 
-interface CardDragData {
+
+interface DragDataInput {
     pileIndex?: number
     cardIndex?: number
+}
+
+class CardOrPileDragData implements DragDataInput {
+    readonly pileIndex?: number
+    readonly sourcePile?: Pile
+    readonly cardIndex?: number
+    readonly sourceCard?: Card
+
+    constructor(input: DragDataInput, app: TableApp) {
+        this.pileIndex = input.pileIndex;
+        this.sourcePile = typeof this.pileIndex === "number" ? app.piles[this.pileIndex] : undefined;
+        this.cardIndex = input.cardIndex;
+        this.sourceCard = typeof this.cardIndex === "number" && this.sourcePile ? this.sourcePile.cards[this.cardIndex] : undefined;
+    }
+
+    get type() {
+        return this.sourceCard ? 'CARD_DRAG' : 'PILE_DRAG'
+    }
 }
 
 class TableApp extends TableModel {
@@ -14,6 +33,7 @@ class TableApp extends TableModel {
     constructor(piles: Pile[], tableElement: Element) {
         super(piles, tableElement)
         this.piles.forEach(pile => { this.registerPile(pile) });
+        this.setUpTable()
     }
 
     addPile(pile = new Pile()): Pile {
@@ -42,8 +62,8 @@ class TableApp extends TableModel {
                 this.removeAndRenderCards(pile, pileElement)
             },
             {
-                time:.5,
-                startingTransforms: { 
+                time: .5,
+                startingTransforms: {
                     "rotateY": "-180deg"
                 }
             }
@@ -61,7 +81,7 @@ class TableApp extends TableModel {
             sourceCardElement as HTMLElement,
             () => {
 
-                addCardElementToPileElement(targetPileElement,sourceCardElement)
+                addCardElementToPileElement(targetPileElement, sourceCardElement)
             },
             {
                 speed: 100,
@@ -78,10 +98,18 @@ class TableApp extends TableModel {
         setPileElementAttributes(sourcePile, sourcePileElement)
     }
 
+    protected setUpTable() {
+        this.tableElement.addEventListener('dragover', event => { event.preventDefault() });
+        this.tableElement.addEventListener('dragenter', event => { event.preventDefault() });
+        this.tableElement.addEventListener('drop', this.dropOnTableHandler.bind(this));
+        this.tableElement.setAttribute('droptarget', "true")
+    }
+
     protected registerPile(pile: Pile) {
         const pileElement = makePileElement(
             pile,
             this.dropOnPileHandler.bind(this),
+            this.pileDragHandler.bind(this),
             this.spreadOrCollectPile.bind(this),
             this.turnOverPile.bind(this),
         );
@@ -96,19 +124,20 @@ class TableApp extends TableModel {
 
         pile.cards.forEach(card => {
             const cardElement = makeCardElement(card, pile.faceDown, this.cardDragHandler.bind(this))
-            addCardElementToPileElement(pileElement,cardElement, true)
+            addCardElementToPileElement(pileElement, cardElement, true)
             this.elementToCardMap.set(cardElement, card)
         })
     }
 
-    protected parseCardDragData(event: DragEvent): CardDragData {
+    protected parseDragData(event: DragEvent): CardOrPileDragData {
         let data: any = {}
         try {
             data = JSON.parse(event.dataTransfer.getData("text/plain"))
         } catch (error) {
             console.warn(error)
         }
-        return data
+
+        return new CardOrPileDragData(data, this)
     }
 
     protected cardDragHandler(event: DragEvent) {
@@ -117,34 +146,57 @@ class TableApp extends TableModel {
         if (event.currentTarget instanceof HTMLElement) {
             const card = this.elementToCardMap.get(event.currentTarget)
             const pile = this.elementToPileMap.get(event.currentTarget.parentElement);
-
             if (!pile) { return }
 
-            const data: CardDragData = {
+            const data: DragDataInput = {
                 pileIndex: this.piles.indexOf(pile),
                 cardIndex: pile.spread ? pile.cards.indexOf(card) : 0,
             }
+            event.dataTransfer.setData("text/plain", JSON.stringify(data));
+        }
+    }
 
+    protected pileDragHandler(event: DragEvent) {
+        event.dataTransfer.effectAllowed = "move";
+
+        if (event.currentTarget instanceof HTMLElement) {
+            // currentTarget will be the controlElement, which is a child of the pile
+            const pile = this.elementToPileMap.get(event.currentTarget.parentElement);
+            if (!pile) { return }
+
+            const data: DragDataInput = {
+                pileIndex: this.piles.indexOf(pile),
+            }
             event.dataTransfer.setData("text/plain", JSON.stringify(data));
         }
     }
 
     protected dropOnPileHandler(event: DragEvent) {
-        let targetPile: Pile, targetPileElement: HTMLElement;
-
-        const data = this.parseCardDragData(event)
-        const sourcePile = this.piles[data.pileIndex];
-        const sourceCard = sourcePile?.cards[data.cardIndex];
+        let targetPile: Pile, dropTarget: HTMLElement;
+        const dragData = this.parseDragData(event)
 
         if (event.target instanceof HTMLElement) {
-            targetPileElement = event.target.closest('[droptarget]');
-            if (targetPileElement) {
-                targetPile = this.elementToPileMap.get(targetPileElement)
+            dropTarget = event.target.closest('[droptarget]');
+            if (dropTarget) {
+                targetPile = this.elementToPileMap.get(dropTarget)
             }
         }
 
-        if (!targetPile || !sourceCard) { return }
-        this.moveCard(sourceCard, sourcePile, targetPile);
+        if (!targetPile || !dragData.sourceCard) { return }
+        this.moveCard(dragData.sourceCard, dragData.sourcePile, targetPile);
+    }
+
+    protected dropOnTableHandler(event: DragEvent) {
+        let targetPile: Pile, dropTarget: HTMLElement;
+        const dragData = this.parseDragData(event)
+
+        if (event.target instanceof HTMLElement) {
+            dropTarget = event.target.closest('[droptarget]');
+            if (dropTarget) {
+                targetPile = this.elementToPileMap.get(dropTarget)
+            }
+        }
+        console.log(dropTarget == this.tableElement, dragData, event)
     }
 
 }
