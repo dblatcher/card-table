@@ -110,7 +110,7 @@ class TableApp extends TableModel {
                 addCardElementToPileElement(targetPileElement, sourceCardElement)
             },
             {
-                speed: 100,
+                time: 1,
                 startingTransforms: {
                     "rotateY": sourceCardElement.classList.contains('flip') ? '180deg' : '0deg',
                     "rotateZ": '10deg'
@@ -210,7 +210,7 @@ class TableApp extends TableModel {
         }
 
         if (targetPile === sourcePile) {
-            console.log('dropped onto self')
+            console.log('dropped onto sourcePile')
         }
 
         if (!targetPile || !sourceCard) { return }
@@ -224,10 +224,11 @@ class TableApp extends TableModel {
     protected dropOnTableHandler(event: DragEvent) {
         const dragData = this.parseDragData(event)
         const { sourceCard, sourcePile } = dragData
+        const { altKey, target,clientX,clientY } = event
 
         let dropTarget: HTMLElement;
-        if (event.target instanceof HTMLElement) {
-            dropTarget = event.target.closest('[droptarget]');
+        if (target instanceof HTMLElement) {
+            dropTarget = target.closest('[droptarget]');
         }
 
         if (dropTarget !== this.tableElement) {
@@ -235,11 +236,11 @@ class TableApp extends TableModel {
         }
 
         const tableRect = this.tableElement.getBoundingClientRect();
-        const tableX = event.clientX - tableRect.left
-        const tableY = event.clientY - tableRect.top
+        const tableX = clientX - tableRect.left
+        const tableY = clientY - tableRect.top
 
         if (sourceCard && sourcePile) {
-            const newPile = this.addPile(new Pile([], { x: tableX, y: tableY }))
+            const newPile = this.addPile(new Pile([], { x: tableX, y: tableY, faceDown: altKey ? !sourcePile.faceDown : sourcePile.faceDown }))
             this.moveCard(sourceCard, sourcePile, newPile);
             if (sourcePile.cards.length === 0) {
                 this.removePile(sourcePile)
