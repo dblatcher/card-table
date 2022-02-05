@@ -136,4 +136,4 @@ function addCardElementToPileElement(pileElement: Element, cardElement: Element,
     }
 }
 
-export { makeCardElement, makePileElement, setPileElementAttributes, removeCardElements, addCardElementToPileElement }
+export { makeCardElement, makePileElement, setPileElementAttributes, removeCardElements, addCardElementToPileElement,setPileElementPosition}

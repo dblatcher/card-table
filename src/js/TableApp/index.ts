@@ -1,5 +1,5 @@
 import { animatedElementMove } from "../animation";
-import { addCardElementToPileElement, makeCardElement, makePileElement, removeCardElements, setPileElementAttributes } from "./elements";
+import { addCardElementToPileElement, makeCardElement, makePileElement, removeCardElements, setPileElementAttributes, setPileElementPosition } from "./elements";
 import { Pile } from "../pile";
 import { TableModel } from "../TableModel";
 import { Card } from "../card";
@@ -66,6 +66,22 @@ class TableApp extends TableModel {
                 startingTransforms: {
                     "rotateY": "-180deg"
                 }
+            }
+        )
+    }
+
+    movePile(sourcePile: Pile, tableX: number, tableY: number) {
+        const sourcePileElement = this.findElementForPile(sourcePile) as HTMLElement
+
+        animatedElementMove(
+            sourcePileElement as HTMLElement,
+            () => {
+                sourcePile.x = tableX
+                sourcePile.y = tableY
+                setPileElementPosition(sourcePile, sourcePileElement)
+            },
+            {
+                time: 1
             }
         )
     }
@@ -187,16 +203,29 @@ class TableApp extends TableModel {
     }
 
     protected dropOnTableHandler(event: DragEvent) {
-        let targetPile: Pile, dropTarget: HTMLElement;
-        const dragData = this.parseDragData(event)
-
+        let dropTarget: HTMLElement;
         if (event.target instanceof HTMLElement) {
             dropTarget = event.target.closest('[droptarget]');
-            if (dropTarget) {
-                targetPile = this.elementToPileMap.get(dropTarget)
-            }
         }
-        console.log(dropTarget == this.tableElement, dragData, event)
+        console.log(dropTarget == this.tableElement,)
+
+        if (dropTarget !== this.tableElement) {
+            return
+        }
+
+        const dragData = this.parseDragData(event)
+        const { sourceCard, sourcePile } = dragData
+
+        const tableRect = this.tableElement.getBoundingClientRect();
+        const tableX = event.clientX - tableRect.left
+        const tableY = event.clientY - tableRect.top
+
+        if (sourceCard && sourcePile) {
+            const newPile = this.addPile(new Pile([], { x: tableX, y: tableY }))
+            this.moveCard(sourceCard, sourcePile, newPile)
+        } else if (sourcePile) {
+            this.movePile(sourcePile, tableX, tableY);
+        }
     }
 
 }
