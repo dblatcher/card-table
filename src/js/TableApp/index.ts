@@ -70,14 +70,24 @@ class TableApp extends TableModel {
         )
     }
 
+    removePile(pile: Pile): Pile {
+        const index = this.piles.indexOf(pile)
+        const pileElement = this.findElementForPile(pile)
+        if (index === -1 || !pileElement) { throw ('cannot find pile') }
+        this.piles.splice(index, 1);
+        this.elementToPileMap.delete(pileElement)
+        pileElement.parentElement.removeChild(pileElement);
+        return pile
+    }
+
     movePile(sourcePile: Pile, tableX: number, tableY: number) {
         const sourcePileElement = this.findElementForPile(sourcePile) as HTMLElement
+        sourcePile.x = tableX
+        sourcePile.y = tableY
 
         animatedElementMove(
             sourcePileElement as HTMLElement,
             () => {
-                sourcePile.x = tableX
-                sourcePile.y = tableY
                 setPileElementPosition(sourcePile, sourcePileElement)
             },
             {
@@ -190,6 +200,7 @@ class TableApp extends TableModel {
     protected dropOnPileHandler(event: DragEvent) {
         let targetPile: Pile, dropTarget: HTMLElement;
         const dragData = this.parseDragData(event)
+        const { sourcePile, sourceCard } = dragData
 
         if (event.target instanceof HTMLElement) {
             dropTarget = event.target.closest('[droptarget]');
@@ -198,23 +209,30 @@ class TableApp extends TableModel {
             }
         }
 
-        if (!targetPile || !dragData.sourceCard) { return }
-        this.moveCard(dragData.sourceCard, dragData.sourcePile, targetPile);
+        if (targetPile === sourcePile) {
+            console.log('dropped onto self')
+        }
+
+        if (!targetPile || !sourceCard) { return }
+        this.moveCard(sourceCard, sourcePile, targetPile);
+
+        if (sourcePile.cards.length === 0) {
+            this.removePile(sourcePile)
+        }
     }
 
     protected dropOnTableHandler(event: DragEvent) {
+        const dragData = this.parseDragData(event)
+        const { sourceCard, sourcePile } = dragData
+
         let dropTarget: HTMLElement;
         if (event.target instanceof HTMLElement) {
             dropTarget = event.target.closest('[droptarget]');
         }
-        console.log(dropTarget == this.tableElement,)
 
         if (dropTarget !== this.tableElement) {
             return
         }
-
-        const dragData = this.parseDragData(event)
-        const { sourceCard, sourcePile } = dragData
 
         const tableRect = this.tableElement.getBoundingClientRect();
         const tableX = event.clientX - tableRect.left
@@ -222,7 +240,10 @@ class TableApp extends TableModel {
 
         if (sourceCard && sourcePile) {
             const newPile = this.addPile(new Pile([], { x: tableX, y: tableY }))
-            this.moveCard(sourceCard, sourcePile, newPile)
+            this.moveCard(sourceCard, sourcePile, newPile);
+            if (sourcePile.cards.length === 0) {
+                this.removePile(sourcePile)
+            }
         } else if (sourcePile) {
             this.movePile(sourcePile, tableX, tableY);
         }
