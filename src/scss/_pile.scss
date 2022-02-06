@@ -82,17 +82,3 @@
     }
   }
 }
-
-.pile-control {
-  position: absolute;
-  display: inline-flex;
-  margin: 0;
-  left: -1em;
-  top:  -1em;
-  width: 2em;
-  height: 2em;
-  border-radius: 50%;
-  background-color: blueviolet;
-  z-index: 10;
-  filter: none;
-}
