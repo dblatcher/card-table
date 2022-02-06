@@ -37,25 +37,34 @@ async function animatedElementMove(
     config: {
         time?: number, speed?: number,
         startingTransforms?: { [index: string]: string },
-        endingClasses?: { [index: string]: boolean }
+        endingClasses?: { [index: string]: boolean },
+        zIndexDuringMove?: number
     } = {}
 ): Promise<HTMLElement> {
 
-    const { startingTransforms = {}, endingClasses = {}, time, speed } = config
+    const { startingTransforms = {}, endingClasses = {}, time, speed, zIndexDuringMove = 10 } = config
 
     const first = element.getBoundingClientRect()
     await moveFunction()
     const last = element.getBoundingClientRect()
-    
+
     element.style.transition = 'none';
-    element.style.zIndex = '10'
+    element.style.zIndex = zIndexDuringMove.toString()
     element.style.transform = buildInlineTransformString(first, last, startingTransforms)
-    
-    
+
+
     return new Promise(resolve => {
+
+        element.addEventListener('transitionend',
+            () => {
+                element.style.transform = ''
+                element.style.transition = ''
+                element.style.zIndex = ''
+                resolve(element)
+            }, { once: true });
+
         requestAnimationFrame(() => {
             element.style.transition = `transform ${calculateTransitionTime(first, last, speed, time)}s`;
-            element.style.zIndex = '10'
             element.style.transform = ''
 
             Object.keys(endingClasses).forEach(className => {
@@ -67,13 +76,7 @@ async function animatedElementMove(
             })
         })
 
-        element.addEventListener('transitionend',
-            () => {
-                element.style.transform = ''
-                element.style.transition = ''
-                element.style.zIndex = ''
-                resolve(element)
-            });
+
     })
 
 }

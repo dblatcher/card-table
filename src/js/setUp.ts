@@ -3,6 +3,17 @@ import { Pile } from "./pile"
 
 const initialPiles: Pile[] = [
     Pile.ofNewDeckWithJokers({x:10,y:10}),
+
+    new Pile([
+        new Card(Card.value['KING'], 'clubs'),
+        // new Card(Card.value['KING'], 'hearts'),
+        // new Card(Card.value['KING'], 'diamonds'),
+        // new Card(Card.value['KING'], 'hearts'),
+        new Card(Card.value['JACK'], 'diamonds'),
+        new Card(Card.value['JACK'], 'hearts'),
+    ],{
+        x:40, y:120,spread:true
+    })
 ]
 
 const initialPiles2 = [

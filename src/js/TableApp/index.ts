@@ -80,20 +80,53 @@ class TableApp extends TableModel {
         return pile
     }
 
-    movePile(sourcePile: Pile, tableX: number, tableY: number) {
-        const sourcePileElement = this.findElementForPile(sourcePile) as HTMLElement
-        sourcePile.x = tableX
-        sourcePile.y = tableY
+    movePile(pile: Pile, tableX: number, tableY: number) {
+        const pileElement = this.findElementForPile(pile) as HTMLElement
+        pile.x = tableX
+        pile.y = tableY
 
         animatedElementMove(
-            sourcePileElement as HTMLElement,
+            pileElement as HTMLElement,
             () => {
-                setPileElementPosition(sourcePile, sourcePileElement)
+                setPileElementPosition(pile, pileElement)
             },
             {
                 time: 1
             }
         )
+    }
+
+    shufflePile(pile: Pile) {
+        const pileElement = this.findElementForPile(pile) as HTMLElement
+        pile.shuffle();
+        this.removeAndRenderCards(pile, pileElement)
+
+        pile.cards.forEach(card => {
+            const cardElement = this.findElementForCard(card) as HTMLElement
+            const endsOnTop = pile.cards.indexOf(card) === 0;
+
+            function randomShift(amount = 15) {
+                return (Math.floor(Math.random() * amount) - Math.floor(amount / 2)).toString()
+            }
+
+            requestAnimationFrame( () => {
+                animatedElementMove(cardElement, () => {
+                 }, {
+                    time: 2,
+                    zIndexDuringMove: endsOnTop ? 30 : 10,
+                    startingTransforms:  {
+                        'translateX': pile.spread ? randomShift(120) : randomShift(),
+                        'translateY': randomShift(),
+                        'rotateZ': randomShift(45) + 'deg',
+                        "rotateY": cardElement.classList.contains('flip') ? '180deg' : '0deg',
+                    }
+                })
+
+            })
+
+
+        })
+
     }
 
     moveCard(sourceCard: Card, sourcePile: Pile, targetPile: Pile) {
@@ -224,7 +257,7 @@ class TableApp extends TableModel {
     protected dropOnTableHandler(event: DragEvent) {
         const dragData = this.parseDragData(event)
         const { sourceCard, sourcePile } = dragData
-        const { altKey, target,clientX,clientY } = event
+        const { altKey, target, clientX, clientY } = event
 
         let dropTarget: HTMLElement;
         if (target instanceof HTMLElement) {
