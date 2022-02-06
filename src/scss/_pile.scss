@@ -1,9 +1,8 @@
 .pile {
-  border-radius: 0.5em;
-  width: 4em;
-  height: 6em;
+  @include cardShape;
+  box-sizing: content-box;
   margin: 0;
-  padding-bottom: 1.2em;
+  padding: .2em;
   display: inline-block;
   position: absolute;
 
@@ -11,10 +10,8 @@
     filter: unset;
 
     &:after {
+      @include cardShape;
       content: '';
-      width: 4em;
-      height: 6em;
-      border-radius: .5em;
       display: inline-block;
       background: repeating-linear-gradient(45deg, transparent .4em, whitesmoke .5em, transparent .6em)
     }
@@ -41,7 +38,7 @@
 
     .card {
       position: relative;
-      flex-basis: 4em;
+      flex-basis: $cardWidth;
       flex-shrink: 0;
 
       &.flip {
@@ -65,20 +62,20 @@
   }
 
   &:not(.spread) {
-    &[quantity="small"] {
-      filter: drop-shadow(2px 1px 2px black);
+    &[quantity="small"]::before {
+      @include cardShadow(2px,1px,2px);
     }
   
-    &[quantity="medium"] {
-      filter: drop-shadow(4px 2px 2px black);
+    &[quantity="medium"]::before {
+      @include cardShadow(4px,2px,2px);
     }
   
-    &[quantity="big"] {
-      filter: drop-shadow(6px 3px 2px black);
+    &[quantity="big"]::before {
+      @include cardShadow(6px,3px,2px);
     }
   
-    &[quantity="huge"] {
-      filter: drop-shadow(8px 4px 2px black);
+    &[quantity="huge"]::before {
+      @include cardShadow(8px,4px,2px);
     }
   }
 }
