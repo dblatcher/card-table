@@ -1,39 +1,55 @@
 import { Card } from "../card";
 import { Pile } from "../pile";
 
+import htm from 'htm';
+
+function h(type: string, props: { [index: string]: string | number | undefined }, ...children: any[]): HTMLElement {
+    const element = document.createElement(type);
+
+    for (let key in props) {
+        const value = props[key] ? props[key].toString() : '';
+        element.setAttribute(key, value)
+    }
+
+    children.forEach(child => {
+        if (child instanceof Node) {
+            element.appendChild(child)
+        } else if (typeof child == 'string') {
+            element.appendChild(document.createTextNode(child))
+        }
+    })
+    return element
+}
+
+const html = htm.bind(h);
+
+
 function makeCardElement(
     card: Card,
     faceDown = false,
     cardDragHandler?: EventListener
 ): HTMLElement {
-    const cardElement = document.createElement('figure');
-    cardElement.classList.add('card');
-    if (faceDown) { cardElement.classList.add('flip') }
 
-    cardElement.setAttribute('suit', card.suit);
-    cardElement.setAttribute('draggable', "true");
 
-    const face = document.createElement('section');
-    face.classList.add('face');
-    face.innerHTML = `
-    <span class="top-value">
-        <span>${card.suitSymbol}</span>
-        <span>${card.symbol}</span>
-    </span>
-    <span class="middle">${card.symbol}</span>
-    <span class="bottom-value">
-        <span>${card.suitSymbol}</span>
-        <span>${card.symbol}</span>
-    </span>
-    `
-    cardElement.appendChild(face)
-
-    const back = document.createElement('section');
-    back.classList.add('back');
-    cardElement.appendChild(back)
+    const cardElement = html`
+    <figure class="card${faceDown ? ' flip' : ''}" suit="${card.suit}" draggable="true">
+        <section class="face">
+            <span class="top-value">
+                <span>${card.suitSymbol}</span>
+                <span>${card.symbol}</span>
+            </span>
+            <span class="middle">${card.symbol}</span>
+            <span class="bottom-value">
+                <span>${card.suitSymbol}</span>
+                <span>${card.symbol}</span>
+            </span>
+        </section>
+        <section class="back">
+        </section>
+    </figure>
+    ` as HTMLElement
 
     cardElement.addEventListener('dragstart', cardDragHandler);
-
     return cardElement;
 }
 
@@ -136,4 +152,4 @@ function addCardElementToPileElement(pileElement: Element, cardElement: Element,
     }
 }
 
-export { makeCardElement, makePileElement, setPileElementAttributes, removeCardElements, addCardElementToPileElement,setPileElementPosition}
+export { makeCardElement, makePileElement, setPileElementAttributes, removeCardElements, addCardElementToPileElement, setPileElementPosition }
