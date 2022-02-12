@@ -1,5 +1,6 @@
 import { Card } from "../card";
 import { Pile } from "../pile";
+import { PileInteractionController } from "./PileInteractionController";
 
 function makeCardElement(
     card: Card,
@@ -39,53 +40,46 @@ function makeCardElement(
 
 
 function makeControlElement(
-    pile: Pile,
-    pileDragHandler?: EventListener,
-    leftClickAction?: { (pile: Pile): void },
-    rightClickAction?: { (pile: Pile): void }
+    draggable: boolean,
+    symbol?: string,
+    right = false,
+    bottom = false,
 ): HTMLElement {
 
     const controlElement = document.createElement('figure');
     controlElement.classList.add('pile-control');
-    controlElement.setAttribute('draggable', "true");
-    controlElement.addEventListener('dragstart', pileDragHandler);
+    if (bottom) {
+        controlElement.classList.add('pile-control--bottom');
+    }
+    if (right) {
+        controlElement.classList.add('pile-control--right');
+    }
 
-    controlElement.addEventListener('click', () => {
-        if (leftClickAction) {
-            leftClickAction(pile)
-        }
-    })
+    if (draggable) {
+        controlElement.setAttribute('draggable', "true");
+    }
 
-    controlElement.addEventListener('contextmenu', event => {
-        if (rightClickAction) {
-            event.preventDefault()
-            rightClickAction(pile)
-        }
-    })
+    controlElement.innerHTML = `<span>${symbol}</span>`
 
     return controlElement
 }
 
 function makePileElement(
-    pile: Pile,
-    dropOnPileHandler: EventListener,
-    pileDragHandler?: EventListener,
-    leftClickAction?: { (pile: Pile): void },
-    rightClickAction?: { (pile: Pile): void }
+    pileInteractionController: PileInteractionController
 ): HTMLElement {
+    const { pile } = pileInteractionController;
     const pileElement = document.createElement('div');
     pileElement.classList.add('pile')
     setPileElementAttributes(pile, pileElement)
     setPileElementPosition(pile, pileElement)
 
-    pileElement.addEventListener('dragover', event => { event.preventDefault() });
-    pileElement.addEventListener('dragenter', event => { event.preventDefault() });
-    pileElement.addEventListener('drop', dropOnPileHandler);
-    pileElement.setAttribute('droptarget', "true")
+    pileInteractionController.addEventListeners(pileElement)
 
-
-    const controlElement = makeControlElement(pile, pileDragHandler, leftClickAction, rightClickAction);
-    pileElement.appendChild(controlElement)
+    pileInteractionController.buttons.forEach(button => {
+        const controlElement = makeControlElement(!!button.events.drag, button.symbol, button.isRight, button.isBottom)
+        pileInteractionController.addEventListeners(controlElement, button.label)
+        pileElement.appendChild(controlElement)
+    })
 
     return pileElement
 }
@@ -136,4 +130,4 @@ function addCardElementToPileElement(pileElement: Element, cardElement: Element,
     }
 }
 
-export { makeCardElement, makePileElement, setPileElementAttributes, removeCardElements, addCardElementToPileElement,setPileElementPosition}
+export { makeCardElement, makePileElement, setPileElementAttributes, removeCardElements, addCardElementToPileElement, setPileElementPosition }

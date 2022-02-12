@@ -3,6 +3,7 @@ import { addCardElementToPileElement, makeCardElement, makePileElement, removeCa
 import { Pile } from "../pile";
 import { TableModel } from "../TableModel";
 import { Card } from "../card";
+import { PileInteractionController } from "./PileInteractionController";
 
 
 interface DragDataInput {
@@ -109,12 +110,12 @@ class TableApp extends TableModel {
                 return (Math.floor(Math.random() * amount) - Math.floor(amount / 2)).toString()
             }
 
-            requestAnimationFrame( () => {
+            requestAnimationFrame(() => {
                 animatedElementMove(cardElement, () => {
-                 }, {
+                }, {
                     time: 2,
                     zIndexDuringMove: endsOnTop ? 30 : 10,
-                    startingTransforms:  {
+                    startingTransforms: {
                         'translateX': pile.spread ? randomShift(120) : randomShift(),
                         'translateY': randomShift(),
                         'rotateZ': randomShift(45) + 'deg',
@@ -165,12 +166,24 @@ class TableApp extends TableModel {
     }
 
     protected registerPile(pile: Pile) {
+
+        const pileHander = new PileInteractionController(pile, {
+            drop: this.dropOnPileInteractionController.bind(this),
+            click: this.spreadOrCollectPile.bind(this),
+            rightClick: this.turnOverPile.bind(this),
+        }, [
+            {
+                label: 'move',
+                symbol: 'M',
+                events: {
+                    drag: this.pileDragHandler.bind(this),
+                    rightClick: this.shufflePile.bind(this),
+                }
+            }
+        ]);
+
         const pileElement = makePileElement(
-            pile,
-            this.dropOnPileHandler.bind(this),
-            this.pileDragHandler.bind(this),
-            this.spreadOrCollectPile.bind(this),
-            this.turnOverPile.bind(this),
+            pileHander,
         );
         this.elementToPileMap.set(pileElement, pile);
         setPileElementAttributes(pile, pileElement)
@@ -230,7 +243,7 @@ class TableApp extends TableModel {
         }
     }
 
-    protected dropOnPileHandler(event: DragEvent) {
+    protected dropOnPileInteractionController(event: DragEvent) {
         let targetPile: Pile, dropTarget: HTMLElement;
         const dragData = this.parseDragData(event)
         const { sourcePile, sourceCard } = dragData

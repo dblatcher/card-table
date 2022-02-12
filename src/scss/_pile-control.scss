@@ -7,7 +7,27 @@
     width: 2em;
     height: 2em;
     border-radius: 50%;
-    background-color: blueviolet;
+    border:  1px dashed white;
+    color: white;
     z-index: 10;
     filter: none;
+
+    justify-content: center;
+    align-items: center;
+
+    &--right {
+        left: unset;
+        right: -1em;
+    }
+
+    &--bottom {
+        top: unset;
+        bottom: -1em;
+    }
+
+    cursor: pointer;
+
+    &[draggable] {
+        cursor: move;
+    }
 }
