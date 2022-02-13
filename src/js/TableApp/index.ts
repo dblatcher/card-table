@@ -122,26 +122,24 @@ class TableApp extends TableModel {
                         "rotateY": cardElement.classList.contains('flip') ? '180deg' : '0deg',
                     }
                 })
-
             })
-
-
         })
-
     }
 
-    moveCard(sourceCard: Card, sourcePile: Pile, targetPile: Pile) {
+    moveCard(sourceCard: Card, sourcePile: Pile, targetPile: Pile, targetCard?: Card) {
         const sourceCardElement = this.findElementForCard(sourceCard) as HTMLElement
         const sourcePileElement = this.findElementForPile(sourcePile) as HTMLElement
         const targetPileElement = this.findElementForPile(targetPile) as HTMLElement
 
-        sourcePile.dealTo(targetPile, sourceCard)
+
+        const positionToPlaceAt = targetCard ? targetPile.cards.indexOf(targetCard) : 0;
+
+        sourcePile.dealTo(targetPile, sourceCard, positionToPlaceAt)
 
         animatedElementMove(
             sourceCardElement as HTMLElement,
             () => {
-
-                addCardElementToPileElement(targetPileElement, sourceCardElement)
+                addCardElementToPileElement(targetPileElement, sourceCardElement, positionToPlaceAt)
             },
             {
                 time: 1,
@@ -195,8 +193,8 @@ class TableApp extends TableModel {
         removeCardElements(pileElement)
 
         pile.cards.forEach(card => {
-            const cardElement = makeCardElement(card, pile.faceDown, this.cardDragHandler.bind(this))
-            addCardElementToPileElement(pileElement, cardElement, true)
+            const cardElement = makeCardElement(card, pile.faceDown, this.cardDragHandler.bind(this), this.dropOnCardHandler.bind(this))
+            addCardElementToPileElement(pileElement, cardElement, 'BOTTOM')
             this.elementToCardMap.set(cardElement, card)
         })
     }
@@ -243,6 +241,36 @@ class TableApp extends TableModel {
         }
     }
 
+    protected respondToDropInteraction(sourcePile: Pile, targetPile: Pile, sourceCard?: Card, targetCard?: Card) {
+        if (targetPile === sourcePile) {
+            console.log('dropped onto sourcePile')
+        }
+
+        if (!targetPile || !sourceCard) { return }
+
+        this.moveCard(sourceCard, sourcePile, targetPile, targetCard);
+
+        if (sourcePile.cards.length === 0) {
+            this.removePile(sourcePile)
+        }
+    }
+
+    protected dropOnCardHandler(event: DragEvent) {
+        let targetCard: Card, dropTarget: HTMLElement;
+        const dragData = this.parseDragData(event)
+        const { sourcePile, sourceCard } = dragData
+
+        if (event.target instanceof HTMLElement) {
+            dropTarget = event.target.closest('[droptarget]');
+            if (dropTarget) {
+                targetCard = this.elementToCardMap.get(dropTarget)
+            }
+        }
+
+        const targetPile = this.findPileContainingCard(targetCard)
+        this.respondToDropInteraction(sourcePile, targetPile, sourceCard, targetPile.spread ? targetCard : undefined)
+    }
+
     protected dropOnPileHandler(event: DragEvent) {
         let targetPile: Pile, dropTarget: HTMLElement;
         const dragData = this.parseDragData(event)
@@ -255,16 +283,7 @@ class TableApp extends TableModel {
             }
         }
 
-        if (targetPile === sourcePile) {
-            console.log('dropped onto sourcePile')
-        }
-
-        if (!targetPile || !sourceCard) { return }
-        this.moveCard(sourceCard, sourcePile, targetPile);
-
-        if (sourcePile.cards.length === 0) {
-            this.removePile(sourcePile)
-        }
+        this.respondToDropInteraction(sourcePile, targetPile, sourceCard)
     }
 
     protected dropOnTableHandler(event: DragEvent) {

@@ -15,6 +15,10 @@ class TableModel {
         this.elementToCardMap = new Map<Element, Card>();
     }
 
+    findPileContainingCard(card: Card): Pile | undefined {
+        return this.piles.find(pile => pile.cards.includes(card))
+    }
+
     findElementForPile(sourcePile: Pile): Element {
         let sourcePileElement
         this.elementToPileMap.forEach((pile, pileElement) => {

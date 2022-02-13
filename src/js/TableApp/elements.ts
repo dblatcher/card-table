@@ -5,14 +5,14 @@ import { PileInteractionController } from "./PileInteractionController";
 function makeCardElement(
     card: Card,
     faceDown = false,
-    cardDragHandler?: EventListener
+    cardDragHandler?: EventListener,
+    dropOnCardHandler?: EventListener
 ): HTMLElement {
     const cardElement = document.createElement('figure');
     cardElement.classList.add('card');
     if (faceDown) { cardElement.classList.add('flip') }
 
     cardElement.setAttribute('suit', card.suit);
-    cardElement.setAttribute('draggable', "true");
 
     const face = document.createElement('section');
     face.classList.add('face');
@@ -33,7 +33,17 @@ function makeCardElement(
     back.classList.add('back');
     cardElement.appendChild(back)
 
-    cardElement.addEventListener('dragstart', cardDragHandler);
+    if (cardDragHandler) {
+        cardElement.setAttribute('draggable', "true");
+        cardElement.addEventListener('dragstart', cardDragHandler);
+    }
+
+    if (dropOnCardHandler) {
+        cardElement.addEventListener('dragover', event => { event.preventDefault() });
+        cardElement.addEventListener('dragenter', event => { event.preventDefault() });
+        cardElement.addEventListener('drop', dropOnCardHandler);
+        cardElement.setAttribute('droptarget', "true")
+    }
 
     return cardElement;
 }
@@ -120,11 +130,20 @@ function removeCardElements(pileElement: Element) {
     })
 }
 
-function addCardElementToPileElement(pileElement: Element, cardElement: Element, atBottom = false) {
+function addCardElementToPileElement(pileElement: Element, cardElement: Element, position?: 'BOTTOM' | 'TOP' | number) {
     //first card in the pile.cards array is the top card
     // so the last cardElements must be in reversed order (so the last element to be rendered is the one on top)
-    if (atBottom) {
+    if (position === 'BOTTOM') {
         pileElement.prepend(cardElement);
+    } else if (typeof position === 'number') {
+        const cardElements = [...pileElement.querySelectorAll('.card')];
+        if (position < 0 || position > cardElements.length) {
+            console.warn(`position ${position} is out of bounds, placing on top`)
+            pileElement.appendChild(cardElement)
+            return
+        }
+        const indexOfCardToInsertNewCardBefore = cardElements.length - position;
+        pileElement.insertBefore(cardElement, cardElements[indexOfCardToInsertNewCardBefore])
     } else {
         pileElement.appendChild(cardElement)
     }

@@ -74,20 +74,41 @@ class Pile implements Required<PileConfig> {
         return this
     }
 
-    dealTo(destination: Pile, cardOrIndex?: Card | number): Pile {
-        if (this.cards.length === 0) { return }
-
-        let index = 0;
+    /**
+     * Remove a card from the pile, defaulting to the first card
+     * @param [cardOrIndex] a card in the pile or the index of a card
+     * @returns the card removed from the pile
+     */
+    pickOut(cardOrIndex?: Card | number): Card | undefined {
+        let cardIndex = 0;
 
         if (typeof cardOrIndex === 'number') {
-            if (cardOrIndex >= this.cards.length) { return }
-            index = cardOrIndex
+            if (cardOrIndex >= this.cards.length || cardIndex < 0) { return undefined }
+            cardIndex = cardOrIndex
         } else if (cardOrIndex instanceof Card) {
-            index = this.cards.indexOf(cardOrIndex)
-            if (index === -1) { return }
+            cardIndex = this.cards.indexOf(cardOrIndex)
+            if (cardIndex === -1) { return undefined }
         }
 
-        destination.cards.unshift(this.cards.splice(index, 1)[0])
+        return this.cards.splice(cardIndex, 1)[0]
+    }
+
+    dealTo(targetPile: Pile, dealtCardOrIndex?: Card | number, indexInTargetPileToPlaceAt = 0): Pile {
+        if (this.cards.length === 0) { return }
+
+        const cardToDeal = this.pickOut(dealtCardOrIndex);
+
+        if (!cardToDeal) {
+            console.warn(`card does not exist in pile`, dealtCardOrIndex, Pile)
+            return this
+        }
+
+        if (indexInTargetPileToPlaceAt > targetPile.cards.length || indexInTargetPileToPlaceAt < 0) {
+            console.warn(`indexInTargetPileToPlaceAt ${indexInTargetPileToPlaceAt} is out of bounds, defaulting to 0 (top)`)
+            indexInTargetPileToPlaceAt = 0
+        }
+
+        targetPile.cards.splice(indexInTargetPileToPlaceAt, 0, cardToDeal)
         return this
     }
 
