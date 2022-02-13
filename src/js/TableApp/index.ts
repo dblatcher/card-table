@@ -168,7 +168,7 @@ class TableApp extends TableModel {
     protected registerPile(pile: Pile) {
 
         const pileHander = new PileInteractionController(pile, {
-            drop: this.dropOnPileInteractionController.bind(this),
+            drop: this.dropOnPileHandler.bind(this),
             click: this.spreadOrCollectPile.bind(this),
             rightClick: this.turnOverPile.bind(this),
         }, [
@@ -243,7 +243,7 @@ class TableApp extends TableModel {
         }
     }
 
-    protected dropOnPileInteractionController(event: DragEvent) {
+    protected dropOnPileHandler(event: DragEvent) {
         let targetPile: Pile, dropTarget: HTMLElement;
         const dragData = this.parseDragData(event)
         const { sourcePile, sourceCard } = dragData
